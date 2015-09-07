@@ -22,15 +22,20 @@ var entries = [
 ];
 
 var Entry = React.createClass({
+    handlePasswordClick: function (event) {
+        Utils.selectText(event.target);
+    },
     render: function () {
         return (
-            <div className="entry-container">
-                <button className="back-button"
-                    onClick={ this.props.onBack }>Back</button>
+            <div id="entry-container">
+                <span className="back-button glyphicon glyphicon-chevron-left" role="button"
+                    onClick={ this.props.onBack }></span>
                 <div className="entry">
                     <div className="entry-account">{ this.props.entry.account }</div>
                     <div className="entry-username">{ this.props.entry.username }</div>
-                    <div className="entry-password">{ this.props.entry.password }</div>
+                    <div className="entry-password password-hidden" onClick={ this.handlePasswordClick }>
+                        { this.props.entry.password }
+                    </div>
                 </div>
             </div>
         );
@@ -89,8 +94,11 @@ var Search = React.createClass ({
     render: function () {
         var searchString = this.state.searchString.trim().toLowerCase();
         return (
-            <div className="search">
-                <input type="search" placeholder="search" onChange={ this.handleChange } />
+            <div id="search-container" className="search">
+                <form id="search-form" role="search">
+                    <input className="form-control" type="search" placeholder="search"
+                        onChange={ this.handleChange } tabIndex="1" />
+                </form>
                 <SearchResults entries={ this.props.entries } searchString={searchString}
                     onEntryClick={ this.props.onEntryClick } />
             </div>
@@ -103,6 +111,9 @@ var Search = React.createClass ({
  * On success, need to call some sort of parent event...
  */
 var LoginForm = React.createClass ({
+    getInitialState: function () {
+        return { errorMsg: null };
+    },
     handleSubmit: function (e) {
         e.preventDefault();
         var email = React.findDOMNode (this.refs.loginEmail).value;
@@ -114,12 +125,14 @@ var LoginForm = React.createClass ({
     },
     render: function () {
         return (
-            <form onSubmit={ this.handleSubmit }>
-                <input type="email" ref="loginEmail" placeholder="email"
+            <form id="login-form" role="form" onSubmit={ this.handleSubmit }>
+                { this.state.errorMsg ? 
+                    <div className="error">{ this.state.errorMsg }</div> : null }
+                <input className="form-control" type="email" ref="loginEmail" placeholder="email"
                     required="required" tabIndex="1" />
-                <input type="password" ref="loginPassword" placeholder="password"
+                <input className="form-control" type="password" ref="loginPassword" placeholder="password"
                     required="required" tabIndex="2" />
-                <button type="submit">Log In</button>
+                <button className="form-control btn btn-success" type="submit">Log In</button>
             </form>
         );
     }
@@ -133,26 +146,47 @@ var PassZero = React.createClass ({
     getInitialState: function () {
         return {
             loggedIn: false,
-            selectedEntry: null
+            selectedEntry: null,
+            entries: []
         };
     },
     handleLoginSubmit: function (form) {
-        // TODO use remote login here
-        var correctEmail = "dbkats@gmail.com";
-        var correctPassword = "floof";
-        if (correctEmail === form.email && correctPassword === form.password) {
-            this.setState({ loggedIn: true });
-        }
+        var that = this;
+        PassZeroAPI.validateLogin(form.email, form.password)
+        .success(function (response) {
+            console.log("Logged in!");
+            that.setState({
+                loggedIn: true
+            });
+
+            // get entries
+            console.log("Loading entries...");
+            PassZeroAPI.getEntries()
+            .success(function (entries) {
+                console.log("Loaded entries");
+                console.log(entries);
+                that.setState({
+                    entries: entries
+                });
+            }).error(function (response, errorText, c) {
+                console.log("Failed to get entries");
+            });
+        }).error(function (response, errorText, c) {
+            that.refs.loginForm.setState({
+                errorMsg: "Failed to log in"
+            });
+        });
     },
     handleEntryClick: function (entryID) {
+        console.log("Selected entry: " + entryID);
         this.setState({
             selectedEntry: entryID
         });
     },
     getEntryById: function (entryID) {
-        for (var i = 0; i < this.props.entries.length; i++) {
-            if (this.props.entries[i].id === entryID) {
-                return this.props.entries[i];
+        for (var i = 0; i < this.state.entries.length; i++) {
+            if (this.state.entries[i].id === entryID) {
+                return this.state.entries[i];
             }
         }
         return null;
@@ -172,9 +206,9 @@ var PassZero = React.createClass ({
         return (
             <div>
                 { this.state.loggedIn ? null :
-                    <LoginForm onLoginSubmit={ this.handleLoginSubmit } /> }
+                    <LoginForm ref="loginForm" onLoginSubmit={ this.handleLoginSubmit } /> }
                 { this.state.loggedIn && !this.state.selectedEntry ?
-                    <Search entries={ this.props.entries }
+                    <Search ref="search" entries={ this.state.entries }
                         onEntryClick={ this.handleEntryClick } /> :
                             null }
                 { this.state.loggedIn && this.state.selectedEntry ? 
@@ -182,7 +216,8 @@ var PassZero = React.createClass ({
                         onBack={ this.handleEntryBack } /> :
                         null }
                 { this.state.loggedIn ?
-                    <button id="lock-btn" onClick={ this.handleLock }>Lock</button> :
+                    <button id="lock-btn" className="form-control btn btn-warning"
+                        onClick={ this.handleLock }>Lock</button> :
                         null }
             </div>
         );

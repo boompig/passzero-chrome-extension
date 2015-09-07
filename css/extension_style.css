@@ -1,0 +1,36 @@
+#login-form {
+    width: 350px;
+    padding: 1em;
+}
+
+#login-form .form-control {
+    margin-bottom: 0.2em;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#search-container {
+    width: 350px;
+    padding: 1em;
+}
+
+#search-container .form-control {
+    margin-bottom: 0.25em;
+}
+
+#entry-container {
+    width: 350px;
+    padding: 1em;
+}
+
+#entry-container .entry-account {
+    font-weight: bold;
+}
+
+#entry-container .entry-password.password-hidden {
+    padding: 0.5em;
+    color: #666;
+    background-color: #666;
+    border: 1px solid #555;
+    border-radius: 0.5em;
+}
