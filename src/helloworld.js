@@ -195,8 +195,10 @@ var PassZero = React.createClass ({
                         onBack={ this.handleEntryBack } /> :
                         null }
                 { this.state.loggedIn ?
-                    <button id="lock-btn" className="form-control btn btn-warning"
-                        onClick={ this.handleLock }>Lock</button> :
+                    <div id="lock-btn-container">
+                        <button id="lock-btn" className="form-control btn btn-warning"
+                            onClick={ this.handleLock }>Lock</button>
+                    </div> :
                         null }
             </div>
         );

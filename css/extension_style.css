@@ -34,3 +34,10 @@
     border: 1px solid #555;
     border-radius: 0.5em;
 }
+
+#lock-btn-container {
+    padding-left: 1em;
+    padding-right: 1em;
+    padding-bottom: 0.5em;
+    margin: 0 auto;
+}
