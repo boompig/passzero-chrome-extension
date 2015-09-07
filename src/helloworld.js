@@ -73,7 +73,7 @@ var Search = React.createClass ({
     render: function () {
         var searchString = this.state.searchString.trim().toLowerCase();
         return (
-            <div id="search-container" className="search">
+            <div id="search-container">
                 <form id="search-form" role="search">
                     <input className="form-control" type="search" placeholder="search"
                         onChange={ this.handleChange } tabIndex="1" />
@@ -204,6 +204,6 @@ var PassZero = React.createClass ({
 });
 
 React.render(
-    <PassZero entries={ entries } />,
+    <PassZero />,
     document.getElementById("passzero-app")
 );
