@@ -3,6 +3,11 @@
     padding: 1em;
 }
 
+#login-form .error {
+    font-size: 0.9em;
+    color: #D63A0F;
+}
+
 #login-form .form-control {
     margin-bottom: 0.2em;
     margin-left: auto;

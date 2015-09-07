@@ -151,8 +151,17 @@ var PassZero = React.createClass ({
                 console.log("Failed to get entries");
             });
         }).error(function (response, errorText, c) {
+            var errorMsg;
+            if (response.status === 0) {
+                errorMsg = "This is meant to be run in an extension, not as a standalone site";
+            } else if (response.status === 401) {
+                errorMsg = "The username or password is incorrect";
+            } else {
+                errorMsg = "Failed to log in";
+            }
+            console.log(arguments);
             that.refs.loginForm.setState({
-                errorMsg: "Failed to log in"
+                errorMsg: errorMsg
             });
         });
     },
