@@ -1,26 +1,5 @@
 "use strict";
 
-var entries = [
-    {
-        account: "gmail",
-        username: "dbkats@gmail.com",
-        password: "foo",
-        id: 10
-    },
-    {
-        account: "facebook",
-        username: "dbkats@fb.me",
-        password: "foo",
-        id: 57
-    },
-    {
-        account: "twitter",
-        username: "boompig",
-        password: "foo",
-        id: 31
-    },
-];
-
 var Entry = React.createClass({
     handlePasswordClick: function (event) {
         Utils.selectText(event.target);
