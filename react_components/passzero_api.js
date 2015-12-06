@@ -2,6 +2,8 @@
  * Requires JQuery
  */
 var PassZeroAPI = {
+    baseURL: "https://passzero.herokuapp.com",
+
     apiBaseURL: "https://passzero.herokuapp.com/api",
 
     /**
@@ -34,3 +36,7 @@ var PassZeroAPI = {
         });
     }
 };
+
+if (module && module.exports) {
+    module.exports = PassZeroAPI;
+}

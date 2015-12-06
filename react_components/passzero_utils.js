@@ -1,4 +1,4 @@
-var Utils = {
+var PassZeroUtils = {
     /**
     * From this SOF thread:
     * https://stackoverflow.com/questions/985272/selecting-text-in-an-element-ak
@@ -31,4 +31,8 @@ var Utils = {
             selection.removeAllRanges();
         }
     }
+};
+
+if (module && module.exports) {
+    module.exports = PassZeroUtils;
 }

@@ -1,5 +1,8 @@
 "use strict";
 
+var PassZeroAPI = require("./passzero_api.js");
+var Utils = require("./passzero_utils.js");
+
 /**
  * This file is responsible for the UI aspects of the PassZero Chrome extension
  * Each element
@@ -185,7 +188,7 @@ var PassZero = React.createClass ({
         var obj = {
             url: "https://passzero.herokuapp.com",
             name: "session"
-        }
+        };
         chrome.cookies.remove(obj, function (details) {
             console.log("remove session cookie response:");
             console.log(details);
@@ -278,7 +281,6 @@ var PassZero = React.createClass ({
         chrome.cookies.get(obj, function (cookie) {
             if (cookie && cookie.value) {
                 console.log("logged in!");
-                console.log("cookie value = " + cookie.value);
                 that.setState({ loggedIn: true });
             }
         });
