@@ -15,6 +15,7 @@
     "permissions": [
         "activeTab",
         "storage",
+        "cookies",
         "https://passzero.herokuapp.com/"
     ]
 }

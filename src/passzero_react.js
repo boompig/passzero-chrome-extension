@@ -1,5 +1,10 @@
 "use strict";
 
+/**
+ * This file is responsible for the UI aspects of the PassZero Chrome extension
+ * Each element
+ */
+
 var Entry = React.createClass({
     handlePasswordClick: function (event) {
         Utils.selectText(event.target);
@@ -37,6 +42,9 @@ var SearchResultsLink = React.createClass ({
     }
 });
 
+/**
+ * Container for search results.
+ */
 var SearchResults = React.createClass ({
     render: function () {
         var searchString = this.props.searchString;
@@ -62,6 +70,7 @@ var SearchResults = React.createClass ({
 
 /**
  * Component for search
+ * Includes searchresults and search string
  */
 var Search = React.createClass ({
     getInitialState: function () {
@@ -105,7 +114,7 @@ var LoginForm = React.createClass ({
     render: function () {
         return (
             <form id="login-form" role="form" onSubmit={ this.handleSubmit }>
-                { this.state.errorMsg ? 
+                { this.state.errorMsg ?
                     <div className="error">{ this.state.errorMsg }</div> : null }
                 <input className="form-control" type="email" ref="loginEmail" placeholder="email"
                     required="required" tabIndex="1" />
@@ -129,6 +138,52 @@ var PassZero = React.createClass ({
             entries: []
         };
     },
+    /**
+     * Called on successful loggin
+     * loggedIn = true already set
+     * Loads entries
+     */
+    _onLogin: function () {
+        this._getEntries();
+    },
+    /**
+     * Retrieve entries from the server
+     */
+    _getEntries: function () {
+        var that = this;
+        // get entries
+        console.log("Loading entries...");
+        PassZeroAPI.getEntries()
+        .success(function (entries) {
+            console.log("Loaded entries");
+            console.log(entries);
+            that.setState({
+                entries: entries
+            });
+        }).error(function (response, textStatus, errorText) {
+            console.log("Failed to get entries");
+            if (errorText === "UNAUTHORIZED") {
+                // current session is not correct
+                // delete the session
+                var obj = {
+                    url: "https://passzero.herokuapp.com",
+                    name: "session"
+                }
+                chrome.cookies.remove(obj, function (details) {
+                    console.log("remove session cookie response:");
+                    console.log(details);
+                });
+                that.setState({
+                    loggedIn: false
+                });
+            }
+        });
+    },
+    componentWillUpdate: function (nextProps, nextState) {
+        if (!this.state.loggedIn && nextState.loggedIn) {
+            this._onLogin();
+        }
+    },
     handleLoginSubmit: function (form) {
         var that = this;
         PassZeroAPI.validateLogin(form.email, form.password)
@@ -136,19 +191,6 @@ var PassZero = React.createClass ({
             console.log("Logged in!");
             that.setState({
                 loggedIn: true
-            });
-
-            // get entries
-            console.log("Loading entries...");
-            PassZeroAPI.getEntries()
-            .success(function (entries) {
-                console.log("Loaded entries");
-                console.log(entries);
-                that.setState({
-                    entries: entries
-                });
-            }).error(function (response, errorText, c) {
-                console.log("Failed to get entries");
             });
         }).error(function (response, errorText, c) {
             var errorMsg;
@@ -189,6 +231,7 @@ var PassZero = React.createClass ({
             selectedEntry: null,
             loggedIn: false
         });
+        // also hit the logout API
     },
     render: function () {
         return (
@@ -199,7 +242,7 @@ var PassZero = React.createClass ({
                     <Search ref="search" entries={ this.state.entries }
                         onEntryClick={ this.handleEntryClick } /> :
                             null }
-                { this.state.loggedIn && this.state.selectedEntry ? 
+                { this.state.loggedIn && this.state.selectedEntry ?
                     <Entry entry={ this.getEntryById(this.state.selectedEntry) }
                         onBack={ this.handleEntryBack } /> :
                         null }
@@ -212,6 +255,20 @@ var PassZero = React.createClass ({
             </div>
         );
     },
+    componentWillMount: function () {
+        var obj = {
+            url: "https://passzero.herokuapp.com",
+            name: "session"
+        };
+        var that = this;
+        chrome.cookies.get(obj, function (cookie) {
+            if (cookie && cookie.value) {
+                console.log("logged in!");
+                console.log("cookie value = " + cookie.value);
+                that.setState({ loggedIn: true });
+            }
+        });
+    }
 });
 
 React.render(

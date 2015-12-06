@@ -25,5 +25,12 @@ var PassZeroAPI = {
             dataType: "json",
             method: "GET"
         });
+    },
+    logout: function () {
+        return $.ajax({
+            url: PassZeroAPI.apiBaseURL + "/logout",
+            dataType: "json",
+            method: "GET"
+        });
     }
 };
