@@ -30,7 +30,7 @@ var PassZeroAPI = {
         return $.ajax({
             url: PassZeroAPI.apiBaseURL + "/logout",
             dataType: "json",
-            method: "GET"
+            method: "POST"
         });
     }
 };

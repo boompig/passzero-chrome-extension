@@ -163,25 +163,39 @@ var PassZero = React.createClass ({
         }).error(function (response, textStatus, errorText) {
             console.log("Failed to get entries");
             if (errorText === "UNAUTHORIZED") {
-                // current session is not correct
-                // delete the session
-                var obj = {
-                    url: "https://passzero.herokuapp.com",
-                    name: "session"
-                }
-                chrome.cookies.remove(obj, function (details) {
-                    console.log("remove session cookie response:");
-                    console.log(details);
-                });
                 that.setState({
                     loggedIn: false
                 });
             }
         });
     },
+    /**
+     * Called when logout state has been set.
+     * It is already the case that:
+     * 		1. We are logged out with respect to the server
+     *      2. state says we are logged out
+     */
+    _onLogout: function () {
+        console.log("Logged out");
+        this.setState({
+            selectedEntry: null
+        });
+        // current session is not correct
+        // delete the session
+        var obj = {
+            url: "https://passzero.herokuapp.com",
+            name: "session"
+        }
+        chrome.cookies.remove(obj, function (details) {
+            console.log("remove session cookie response:");
+            console.log(details);
+        });
+    },
     componentWillUpdate: function (nextProps, nextState) {
         if (!this.state.loggedIn && nextState.loggedIn) {
             this._onLogin();
+        } else if (this.state.loggedIn && !nextState.loggedIn) {
+            this._onLogout();
         }
     },
     handleLoginSubmit: function (form) {
@@ -227,11 +241,11 @@ var PassZero = React.createClass ({
         });
     },
     handleLock: function () {
-        this.setState({
-            selectedEntry: null,
-            loggedIn: false
-        });
+        var that = this;
         // also hit the logout API
+        PassZeroAPI.logout().then(function() {
+            that.setState({ loggedIn: false });
+        });
     },
     render: function () {
         return (
