@@ -55,3 +55,8 @@
 #confirm-delete-container .btn {
     width: 100%;
 }
+
+#entry-delete-btn {
+    float: right;
+    color: #BF3406;
+}
