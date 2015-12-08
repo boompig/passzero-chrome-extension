@@ -16,7 +16,7 @@ var DeleteView = React.createClass({
                 <span className="back-button glyphicon glyphicon-chevron-left"
                     role="button"
                     onClick={ this.props.onBack }></span>
-                <div>Delete record for account '{ this.props.entry.account }'?</div>
+                <p>Delete record for account '{ this.props.entry.account }'?</p>
                 <button type="button"
                     className="btn btn-danger"
                     onClick={ this.props.onDeleteClick }>Confirm Delete</button>
@@ -343,7 +343,7 @@ var PassZero = React.createClass ({
                         onBack={ this.handleDeleteBack }
                         onDeleteClick={ this.handleConfirmDelete } />
                     : null}
-                { this.state.loggedIn ?
+                { this.state.loggedIn && !this.state.deleteFlag ?
                     <div id="lock-btn-container">
                         <button id="lock-btn" className="form-control btn btn-warning"
                             onClick={ this.handleLock }>Lock</button>
