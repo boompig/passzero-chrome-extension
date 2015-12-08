@@ -2,11 +2,28 @@
 
 var PassZeroAPI = require("./passzero_api.js");
 var Utils = require("./passzero_utils.js");
+var PassZeroDomain = "https://passzero.herokuapp.com";
 
 /**
  * This file is responsible for the UI aspects of the PassZero Chrome extension
  * Each element
  */
+
+var DeleteView = React.createClass({
+    render: function() {
+        return (
+            <div id="confirm-delete-container">
+                <span className="back-button glyphicon glyphicon-chevron-left"
+                    role="button"
+                    onClick={ this.props.onBack }></span>
+                <div>Delete record for account '{ this.props.entry.account }'?</div>
+                <button type="button"
+                    className="btn btn-danger"
+                    onClick={ this.props.onDeleteClick }>Confirm Delete</button>
+            </div>
+        );
+    }
+});
 
 var Entry = React.createClass({
     handlePasswordClick: function (event) {
@@ -20,10 +37,14 @@ var Entry = React.createClass({
                 <div className="entry">
                     <div className="entry-account">{ this.props.entry.account }</div>
                     <div className="entry-username">{ this.props.entry.username }</div>
-                    <div className="entry-password password-hidden" onClick={ this.handlePasswordClick }>
+                    <div className="entry-password password-hidden"
+                    onClick={ this.handlePasswordClick }>
                         { this.props.entry.password }
                     </div>
                 </div>
+                <button type="button"
+                className="btn btn-danger"
+                onClick={ this.props.onDeleteClick }>Delete</button>
             </div>
         );
     }
@@ -143,7 +164,8 @@ var PassZero = React.createClass ({
             loggedIn: false,
             selectedEntry: null,
             entries: [],
-            email: null
+            email: null,
+            deleteFlag: false
         };
     },
     /**
@@ -155,7 +177,7 @@ var PassZero = React.createClass ({
         // save state email in a cookie
         console.log("Setting email cookie: " + this.state.email);
         chrome.cookies.set({
-            url: "https://passzero.herokuapp.com",
+            url: PassZeroDomain,
             name: "email",
             value: this.state.email
         }, function (cookie) {
@@ -201,7 +223,7 @@ var PassZero = React.createClass ({
         // current session is not correct
         // delete the session
         var obj = {
-            url: "https://passzero.herokuapp.com",
+            url: PassZeroDomain,
             name: "session"
         };
         chrome.cookies.remove(obj, function (details) {
@@ -217,11 +239,8 @@ var PassZero = React.createClass ({
         }
     },
     handleLoginSubmit: function (form) {
-        this.setState({
-            email: form.email
-        });
         var that = this;
-        PassZeroAPI.validateLogin(form.email, form.password)
+        PassZeroAPI.validateLogin(this.state.email, form.password)
         .success(function (response) {
             console.log("Logged in!");
             that.setState({
@@ -273,6 +292,32 @@ var PassZero = React.createClass ({
             email: event.target.value
         });
     },
+    handleDeleteClick: function (event) {
+        this.setState({
+            deleteFlag: true
+        });
+    },
+    handleDeleteBack: function () {
+        this.setState({
+            deleteFlag: false
+        });
+    },
+    handleConfirmDelete: function() {
+        var that = this;
+        console.log("Deleting entry with ID " + this.state.selectedEntry);
+        PassZeroAPI.deleteEntry(this.state.selectedEntry)
+            .then(function (response) {
+                console.log("Deleted");
+                console.log(response);
+
+                // deselect entry and unset the flag
+                that.setState({
+                    deleteFlag: false,
+                    selectedEntry: null
+                });
+                that._getEntries();
+            });
+    },
     render: function () {
         return (
             <div>
@@ -285,10 +330,17 @@ var PassZero = React.createClass ({
                     <Search ref="search" entries={ this.state.entries }
                         onEntryClick={ this.handleEntryClick } /> :
                             null }
-                { this.state.loggedIn && this.state.selectedEntry ?
+                { this.state.loggedIn && !this.state.deleteFlag && this.state.selectedEntry ?
                     <Entry entry={ this.getEntryById(this.state.selectedEntry) }
-                        onBack={ this.handleEntryBack } /> :
+                        onBack={ this.handleEntryBack }
+                        onDeleteClick={ this.handleDeleteClick } /> :
                         null }
+                { this.state.loggedIn && this.state.deleteFlag && this.state.selectedEntry ?
+                    <DeleteView
+                        entry={ this.getEntryById(this.state.selectedEntry) }
+                        onBack={ this.handleDeleteBack }
+                        onDeleteClick={ this.handleConfirmDelete } />
+                    : null}
                 { this.state.loggedIn ?
                     <div id="lock-btn-container">
                         <button id="lock-btn" className="form-control btn btn-warning"
@@ -300,12 +352,12 @@ var PassZero = React.createClass ({
     },
     componentWillMount: function () {
         var obj = {
-            url: "https://passzero.herokuapp.com",
+            url: PassZeroDomain,
             name: "session"
         };
         var that = this;
         var emailCookieProps = {
-            url: "https://passzero.herokuapp.com",
+            url: PassZeroDomain,
             name: "email"
         };
         chrome.cookies.get(emailCookieProps, function (cookie) {

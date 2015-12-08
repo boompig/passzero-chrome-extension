@@ -18,6 +18,28 @@ var PassZeroAPI = {
             method: "POST"
         });
     },
+    getCSRFToken: function () {
+        return $.ajax({
+            url: PassZeroAPI.apiBaseURL + "/csrf_token",
+            dataType: "json",
+            method: "GET"
+        });
+    },
+    _deleteEntry: function (entry_id, csrf_token) {
+        var data = { csrf_token: csrf_token };
+        var url = PassZeroAPI.apiBaseURL + "/entries/" + entry_id + "?" + $.param(data);
+        return $.ajax({
+            url: url,
+            dataType: "json",
+            method: "DELETE"
+        });
+    },
+    deleteEntry: function (entry_id) {
+        return PassZeroAPI.getCSRFToken()
+        .then(function(response) {
+            return PassZeroAPI._deleteEntry(entry_id, response);
+        });
+    },
     /**
      * Get entries using PassZero API. Return a promise.
      */

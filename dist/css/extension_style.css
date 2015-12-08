@@ -46,3 +46,12 @@
     padding-bottom: 0.5em;
     margin: 0 auto;
 }
+
+#confirm-delete-container {
+    width: 350px;
+    padding: 1em;
+}
+
+#confirm-delete-container .btn {
+    width: 100%;
+}
