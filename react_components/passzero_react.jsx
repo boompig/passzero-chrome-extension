@@ -103,12 +103,14 @@ var Search = React.createClass ({
  */
 var LoginForm = React.createClass ({
     getInitialState: function () {
-        return { errorMsg: null };
+        return {
+            errorMsg: null,
+        };
     },
     handleSubmit: function (e) {
         e.preventDefault();
-        var email = React.findDOMNode (this.refs.loginEmail).value;
-        var password = React.findDOMNode (this.refs.loginPassword).value;
+        var email = React.findDOMNode(this.refs.loginEmail).value;
+        var password = React.findDOMNode(this.refs.loginPassword).value;
         this.props.onLoginSubmit({
             email: email,
             password: password
@@ -120,7 +122,9 @@ var LoginForm = React.createClass ({
                 { this.state.errorMsg ?
                     <div className="error">{ this.state.errorMsg }</div> : null }
                 <input className="form-control" type="email" ref="loginEmail" placeholder="email"
-                    required="required" tabIndex="1" />
+                    required="required" tabIndex="1"
+                    value={ this.props.email }
+                    onChange={ this.props.onEmailChange } />
                 <input className="form-control" type="password" ref="loginPassword" placeholder="password"
                     required="required" tabIndex="2" />
                 <button className="form-control btn btn-success" type="submit">Log In</button>
@@ -138,7 +142,8 @@ var PassZero = React.createClass ({
         return {
             loggedIn: false,
             selectedEntry: null,
-            entries: []
+            entries: [],
+            email: null
         };
     },
     /**
@@ -147,6 +152,16 @@ var PassZero = React.createClass ({
      * Loads entries
      */
     _onLogin: function () {
+        // save state email in a cookie
+        console.log("Setting email cookie: " + this.state.email);
+        chrome.cookies.set({
+            url: "https://passzero.herokuapp.com",
+            name: "email",
+            value: this.state.email
+        }, function (cookie) {
+            console.log("Email cookie is set:");
+            console.log(cookie);
+        });
         this._getEntries();
     },
     /**
@@ -202,6 +217,9 @@ var PassZero = React.createClass ({
         }
     },
     handleLoginSubmit: function (form) {
+        this.setState({
+            email: form.email
+        });
         var that = this;
         PassZeroAPI.validateLogin(form.email, form.password)
         .success(function (response) {
@@ -250,11 +268,19 @@ var PassZero = React.createClass ({
             that.setState({ loggedIn: false });
         });
     },
+    handleEmailChange: function (event) {
+        this.setState({
+            email: event.target.value
+        });
+    },
     render: function () {
         return (
             <div>
                 { this.state.loggedIn ? null :
-                    <LoginForm ref="loginForm" onLoginSubmit={ this.handleLoginSubmit } /> }
+                    <LoginForm ref="loginForm"
+                    onLoginSubmit={ this.handleLoginSubmit }
+                    email={ this.state.email }
+                    onEmailChange={ this.handleEmailChange } /> }
                 { this.state.loggedIn && !this.state.selectedEntry ?
                     <Search ref="search" entries={ this.state.entries }
                         onEntryClick={ this.handleEntryClick } /> :
@@ -278,6 +304,17 @@ var PassZero = React.createClass ({
             name: "session"
         };
         var that = this;
+        var emailCookieProps = {
+            url: "https://passzero.herokuapp.com",
+            name: "email"
+        };
+        chrome.cookies.get(emailCookieProps, function (cookie) {
+            console.log("email cookie:");
+            console.log(cookie);
+            if (cookie) {
+                that.setState({ email: cookie.value });
+            }
+        });
         chrome.cookies.get(obj, function (cookie) {
             if (cookie && cookie.value) {
                 console.log("logged in!");

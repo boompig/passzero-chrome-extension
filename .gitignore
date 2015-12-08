@@ -1,3 +1,5 @@
 build
 bower_components
 node_modules
+# ignore generated javascript
+dist/js/passzero_extension.js
