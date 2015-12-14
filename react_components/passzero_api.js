@@ -20,7 +20,10 @@ $.getJSON = function(url) {
     });
 };
 
-$.deleteJSON = function(url) {
+$.deleteJSON = function(url, params) {
+    if (params) {
+        url += "?" + $.param(params);
+    }
     return $.ajax({
         url: url,
         method: "DELETE",
@@ -48,9 +51,9 @@ var PassZeroAPI = {
         return $.getJSON(PassZeroAPI.apiBaseURL + "/csrf_token");
     },
     _deleteEntry: function (entry_id, csrf_token) {
-        var data = { csrf_token: csrf_token };
-        var url = PassZeroAPI.apiBaseURL + "/entries/" + entry_id + "?" + $.param(data);
-        return $.deleteJSON(url);
+        var params = { csrf_token: csrf_token };
+        var url = PassZeroAPI.apiBaseURL + "/entries/" + entry_id;
+        return $.deleteJSON(url, params);
     },
     deleteEntry: function (entry_id) {
         return PassZeroAPI.getCSRFToken()
