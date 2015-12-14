@@ -1,3 +1,13 @@
+$.postJSON = function(url, data) {
+    return $.ajax({
+        url: url,
+        data: JSON.stringify(data),
+        method: "POST",
+        dataType: "json",
+        contentType: "application/json"
+    });
+};
+
 /**
  * Requires JQuery
  */
@@ -11,12 +21,7 @@ var PassZeroAPI = {
      */
     validateLogin: function (email, password) {
         var data = { email: email, password: password };
-        return $.ajax({
-            url: PassZeroAPI.apiBaseURL + "/login",
-            data: data,
-            dataType: "json",
-            method: "POST"
-        });
+        return $.postJSON(PassZeroAPI.apiBaseURL + "/login", data);
     },
     getCSRFToken: function () {
         return $.ajax({
