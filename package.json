@@ -1,5 +1,5 @@
 {
-  "name": "PassZero Chrome Extension",
+  "name": "passzero-chrome-extension",
   "version": "1.0.0",
   "description": "Chrome extension for PassZero password manager",
   "main": "Gruntfile.js",
@@ -9,11 +9,13 @@
   "author": "Daniel Kats",
   "license": "MIT",
   "dependencies": {
+    "bootstrap": "^3.3.6",
     "grunt": "^0.4.5",
     "grunt-browserify": "^4.0.1",
     "grunt-contrib-watch": "^0.6.1",
     "grunt-react": "^0.12.3",
     "jquery": "^2.1.4",
     "react": "^0.14.3"
-  }
+  },
+  "private": true
 }
