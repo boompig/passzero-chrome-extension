@@ -1,3 +1,5 @@
+var $ = require("jquery");
+
 $.postJSON = function(url, data) {
     return $.ajax({
         url: url,

@@ -3,6 +3,7 @@
 var PassZeroAPI = require("./passzero_api.js");
 var Utils = require("./passzero_utils.js");
 var PassZeroDomain = "https://passzero.herokuapp.com";
+var React = require("react");
 
 /**
  * This file is responsible for the UI aspects of the PassZero Chrome extension
