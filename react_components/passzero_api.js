@@ -1,10 +1,29 @@
 var $ = require("jquery");
 
 $.postJSON = function(url, data) {
+    data = data || {};
     return $.ajax({
         url: url,
         data: JSON.stringify(data),
         method: "POST",
+        dataType: "json",
+        contentType: "application/json"
+    });
+};
+
+$.getJSON = function(url) {
+    return $.ajax({
+        url: url,
+        method: "GET",
+        dataType: "json",
+        contentType: "application/json"
+    });
+};
+
+$.deleteJSON = function(url) {
+    return $.ajax({
+        url: url,
+        method: "DELETE",
         dataType: "json",
         contentType: "application/json"
     });
@@ -26,20 +45,12 @@ var PassZeroAPI = {
         return $.postJSON(PassZeroAPI.apiBaseURL + "/login", data);
     },
     getCSRFToken: function () {
-        return $.ajax({
-            url: PassZeroAPI.apiBaseURL + "/csrf_token",
-            dataType: "json",
-            method: "GET"
-        });
+        return $.getJSON(PassZeroAPI.apiBaseURL + "/csrf_token");
     },
     _deleteEntry: function (entry_id, csrf_token) {
         var data = { csrf_token: csrf_token };
         var url = PassZeroAPI.apiBaseURL + "/entries/" + entry_id + "?" + $.param(data);
-        return $.ajax({
-            url: url,
-            dataType: "json",
-            method: "DELETE"
-        });
+        return $.deleteJSON(url);
     },
     deleteEntry: function (entry_id) {
         return PassZeroAPI.getCSRFToken()
@@ -51,18 +62,10 @@ var PassZeroAPI = {
      * Get entries using PassZero API. Return a promise.
      */
     getEntries: function () {
-        return $.ajax({
-            url: PassZeroAPI.apiBaseURL + "/entries",
-            dataType: "json",
-            method: "GET"
-        });
+        return $.getJSON(PassZeroAPI.apiBaseURL + "/entries");
     },
     logout: function () {
-        return $.ajax({
-            url: PassZeroAPI.apiBaseURL + "/logout",
-            dataType: "json",
-            method: "POST"
-        });
+        return $.postJSON(PassZeroAPI.apiBaseURL + "/logout");
     }
 };
 
