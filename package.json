@@ -4,7 +4,7 @@
   "description": "Chrome extension for PassZero password manager",
   "main": "Gruntfile.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "eslint react_components/*.jsx || exit 1"
   },
   "author": "Daniel Kats",
   "license": "MIT",
