@@ -1,0 +1,26 @@
+{
+    "extends": "standard",
+    "ecmaVersion": 2016,
+    "parserOptions": {
+        "ecmaFeatures": {
+            "jsx": true
+        }
+    },
+    "env": {
+        "browser": true
+    },
+    "rules": {
+        "quotes": ["error", "double"],
+        "space-before-function-paren": ["error", "never"],
+        "indent": ["error", 4],
+        "semi": ["error", "always"],
+        "no-tabs": ["off"],
+        "react/jsx-uses-vars": "error"
+    },
+    "globals": {
+        "chrome": true
+    },
+    "plugins": [
+        "react"
+    ]
+}

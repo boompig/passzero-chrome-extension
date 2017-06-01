@@ -39,6 +39,7 @@ var PassZeroAPI = {
     baseURL: "https://passzero.herokuapp.com",
 
     apiBaseURL: "https://passzero.herokuapp.com/api",
+    apiv2BaseURL: "https://passzero.herokuapp.com/api/v2",
 
     _copy: function(obj) {
         var newObj = {};
@@ -55,7 +56,7 @@ var PassZeroAPI = {
         return $.postJSON(PassZeroAPI.apiBaseURL + "/login", data);
     },
     getCSRFToken: function() {
-        return $.getJSON(PassZeroAPI.apiBaseURL + "/csrf_token");
+        return $.getJSON(PassZeroAPI.apiBaseURL + "/csrfToken");
     },
     /**
      * Get entries using PassZero API. Return a promise.
@@ -65,10 +66,24 @@ var PassZeroAPI = {
         return $.getJSON(PassZeroAPI.apiBaseURL + "/entries");
     },
     /**
+     * Get entries using PassZero API v2. Return a promise.
+     * User must be logged in.
+     */
+    getEntriesv2: function() {
+        return $.getJSON(PassZeroAPI.apiv2BaseURL + "/entries");
+    },
+    /**
+     * Get entries using PassZero API v2. Return a promise.
+     * User must be logged in.
+     */
+    getEntryv2: function(entryID) {
+        return $.getJSON(PassZeroAPI.apiv2BaseURL + "/entries/" + entryID);
+    },
+    /**
      * Create a new entry given a CSRF token
      */
-    _createEntry: function (entry, csrf_token) {
-        var data = { entry: entry, csrf_token: csrf_token };
+    _createEntry: function(entry, csrfToken) {
+        var data = { entry: entry, csrfToken: csrfToken };
         return $.postJSON(PassZeroAPI.apiBaseURL + "/entries/new", data);
     },
     /**
@@ -78,37 +93,37 @@ var PassZeroAPI = {
     createEntry: function(entry) {
         return PassZeroAPI.getCSRFToken()
         .then(function(response) {
-            return PassZeroAPI._createEntry(entry_id, response);
-        })
+            return PassZeroAPI._createEntry(entry, response);
+        });
     },
-    _editEntry: function(entry_id, entry, csrf_token) {
-        var url = PassZeroAPI.baseURL + "/entries/" + entry_id;
-        var data = { entry: entry, csrf_token: csrf_token };
+    _editEntry: function(entryID, entry, csrfToken) {
+        var url = PassZeroAPI.baseURL + "/entries/" + entryID;
+        var data = { entry: entry, csrfToken: csrfToken };
         return $.postJSON(url, data);
     },
     /**
      * Convenience method to edit an entry in one step.
      * User must be logged in.
      */
-    editEntry: function(entry_id, entry) {
+    editEntry: function(entryID, entry) {
         return PassZeroAPI.getCSRFToken()
         .then(function(response) {
-            return PassZeroAPI._editEntry(entry_id, entry, response);
+            return PassZeroAPI._editEntry(entryID, entry, response);
         });
     },
-    _deleteEntry: function(entry_id, csrf_token) {
-        var params = { csrf_token: csrf_token };
-        var url = PassZeroAPI.apiBaseURL + "/entries/" + entry_id;
+    _deleteEntry: function(entryID, csrfToken) {
+        var params = { csrfToken: csrfToken };
+        var url = PassZeroAPI.apiBaseURL + "/entries/" + entryID;
         return $.deleteJSON(url, params);
     },
     /**
      * Convenience method to delete an entry in one step.
      * User must be logged in.
      */
-    deleteEntry: function(entry_id) {
+    deleteEntry: function(entryID) {
         return PassZeroAPI.getCSRFToken()
         .then(function(response) {
-            return PassZeroAPI._deleteEntry(entry_id, response);
+            return PassZeroAPI._deleteEntry(entryID, response);
         });
     },
     logout: function() {
