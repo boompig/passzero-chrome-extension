@@ -21,8 +21,9 @@ var PassZeroUtils = {
             selection.addRange(range);
         }
     },
-    deselectText: function deselectText () {
-        var doc = document, range, selection;
+    deselectText: function deselectText() {
+        var doc = document;
+        var range, selection;
         if (doc.body.createTextRange) {
             range = document.body.createTextRange();
             range.select();
