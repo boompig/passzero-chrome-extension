@@ -1,5 +1,7 @@
 # PassZero Chrome Extension
 
+[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
+
 ## Features
 
 You can access and delete any of your entries. Changes made on the site will be reflected on the extension and vice-versa.
