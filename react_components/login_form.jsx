@@ -1,5 +1,5 @@
-var React = require("react");
-var PassZeroAPI = require("./passzero_api.js");
+const React = require("react");
+const PassZeroAPI = require("./passzero_api.js");
 
 /**
  * The login widget

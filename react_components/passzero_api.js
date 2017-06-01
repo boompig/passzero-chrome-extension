@@ -1,4 +1,4 @@
-var $ = require("jquery");
+const $ = require("jquery");
 
 $.postJSON = function(url, data) {
     data = data || {};
@@ -42,8 +42,8 @@ var PassZeroAPI = {
     apiv2BaseURL: "https://passzero.herokuapp.com/api/v2",
 
     _copy: function(obj) {
-        var newObj = {};
-        for (var k in obj) {
+        let newObj = {};
+        for (let k in obj) {
             newObj[k] = obj[k];
         }
         return newObj;
@@ -52,7 +52,7 @@ var PassZeroAPI = {
      * Authenticate given user using PassZero API. Return a promise.
      */
     validateLogin: function(email, password) {
-        var data = { email: email, password: password };
+        let data = { email: email, password: password };
         return $.postJSON(PassZeroAPI.apiBaseURL + "/login", data);
     },
     getCSRFToken: function() {
@@ -83,7 +83,7 @@ var PassZeroAPI = {
      * Create a new entry given a CSRF token
      */
     _createEntry: function(entry, csrfToken) {
-        var data = { entry: entry, csrfToken: csrfToken };
+        let data = { entry: entry, csrfToken: csrfToken };
         return $.postJSON(PassZeroAPI.apiBaseURL + "/entries/new", data);
     },
     /**
@@ -97,8 +97,8 @@ var PassZeroAPI = {
         });
     },
     _editEntry: function(entryID, entry, csrfToken) {
-        var url = PassZeroAPI.baseURL + "/entries/" + entryID;
-        var data = { entry: entry, csrfToken: csrfToken };
+        const url = PassZeroAPI.baseURL + "/entries/" + entryID;
+        let data = { entry: entry, csrfToken: csrfToken };
         return $.postJSON(url, data);
     },
     /**
@@ -112,8 +112,8 @@ var PassZeroAPI = {
         });
     },
     _deleteEntry: function(entryID, csrfToken) {
-        var params = { csrfToken: csrfToken };
-        var url = PassZeroAPI.apiBaseURL + "/entries/" + entryID;
+        const url = PassZeroAPI.apiBaseURL + "/entries/" + entryID;
+        let params = { csrfToken: csrfToken };
         return $.deleteJSON(url, params);
     },
     /**

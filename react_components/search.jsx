@@ -1,4 +1,4 @@
-var React = require("react");
+const React = require("react");
 
 /**
  * Expected props:
@@ -14,7 +14,7 @@ class SearchResultsLink extends React.Component {
 
     handleClick(event) {
         event.preventDefault();
-        var entryID = this.props.entry.id;
+        let entryID = this.props.entry.id;
         this.props.onEntryClick(entryID);
     }
 
@@ -33,8 +33,8 @@ class SearchResultsLink extends React.Component {
  */
 class SearchResults extends React.Component {
     render() {
-        var searchString = this.props.searchString;
-        var results = [];
+        const searchString = this.props.searchString;
+        let results = [];
         for (let i = 0; i < this.props.entries.length; i++) {
             let entry = this.props.entries[i];
             if (entry.account.toLowerCase().indexOf(searchString) >= 0) {
@@ -67,7 +67,7 @@ class Search extends React.Component {
         this.setState({ searchString: e.target.value });
     }
     render() {
-        var searchString = this.state.searchString.trim().toLowerCase();
+        const searchString = this.state.searchString.trim().toLowerCase();
         return (
             <div id="search-container">
                 <form id="search-form" role="search">

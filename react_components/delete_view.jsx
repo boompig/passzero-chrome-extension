@@ -1,4 +1,4 @@
-var React = require("react");
+const React = require("react");
 
 /**
  * This file is responsible for the UI aspects of the PassZero Chrome extension

@@ -1,5 +1,5 @@
-var React = require("react");
-var Utils = require("./passzero_utils.js");
+const React = require("react");
+const Utils = require("./passzero_utils.js");
 
 /**
  * Expected props:

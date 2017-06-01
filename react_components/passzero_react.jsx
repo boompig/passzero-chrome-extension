@@ -60,20 +60,19 @@ class PassZero extends React.Component {
      * Retrieve entries from the server
      */
     _getEntries() {
-        var that = this;
         // get entries
         console.log("Loading entries...");
         PassZeroAPI.getEntriesv2()
-        .success(function(entries) {
+        .success((entries) => {
             console.log("Loaded entries");
             console.log(entries);
-            that.setState({
+            this.setState({
                 entries: entries
             });
-        }).error(function(response, textStatus, errorText) {
+        }).error((response, textStatus, errorText) => {
             console.log("Failed to get entries");
             if (errorText === "UNAUTHORIZED") {
-                that.setState({
+                this.setState({
                     loggedIn: false
                 });
             }
@@ -93,7 +92,7 @@ class PassZero extends React.Component {
         });
         // current session is not correct
         // delete the session
-        var obj = {
+        let obj = {
             url: PassZeroDomain,
             name: "session"
         };
@@ -135,10 +134,9 @@ class PassZero extends React.Component {
     }
 
     handleLock() {
-        var that = this;
         // also hit the logout API
-        PassZeroAPI.logout().then(function() {
-            that.setState({ loggedIn: false });
+        PassZeroAPI.logout().then(() => {
+            this.setState({ loggedIn: false });
         });
     }
 
@@ -161,20 +159,19 @@ class PassZero extends React.Component {
     }
 
     handleConfirmDelete() {
-        var that = this;
         console.log("Deleting entry with ID " + this.state.selectedEntry);
         PassZeroAPI.deleteEntry(this.state.selectedEntry)
-            .then(function(response) {
-                console.log("Deleted");
-                console.log(response);
+        .then((response) => {
+            console.log("Deleted");
+            console.log(response);
 
-                // deselect entry and unset the flag
-                that.setState({
-                    deleteFlag: false,
-                    selectedEntry: null
-                });
-                that._getEntries();
+            // deselect entry and unset the flag
+            this.setState({
+                deleteFlag: false,
+                selectedEntry: null
             });
+            this._getEntries();
+        });
     }
 
     render() {
@@ -212,27 +209,26 @@ class PassZero extends React.Component {
     }
 
     componentWillMount() {
-        var obj = {
+        let obj = {
             url: PassZeroDomain,
             name: "session"
         };
-        var that = this;
-        var emailCookieProps = {
+        let emailCookieProps = {
             url: PassZeroDomain,
             name: "email"
         };
         if (chrome && chrome.cookies) {
-            chrome.cookies.get(emailCookieProps, function(cookie) {
+            chrome.cookies.get(emailCookieProps, (cookie) => {
                 console.log("email cookie:");
                 console.log(cookie);
                 if (cookie) {
-                    that.setState({ email: cookie.value });
+                    this.setState({ email: cookie.value });
                 }
             });
             chrome.cookies.get(obj, function(cookie) {
                 if (cookie && cookie.value) {
                     console.log("logged in!");
-                    that.setState({ loggedIn: true });
+                    this.setState({ loggedIn: true });
                 }
             });
         }
