@@ -1,10 +1,21 @@
 import * as React from "react";
 
+interface Entry {
+    id: number;
+    account: string;
+}
+
+interface Props {
+    onBack: any;
+    onDeleteClick: any;
+    entry: Entry;
+}
+
 /**
  * This file is responsible for the UI aspects of the PassZero Chrome extension
  * Each element
  */
-class DeleteView extends React.Component<any, any> {
+class DeleteView extends React.Component<Props, any> {
     render() {
         return (
             <div id="confirm-delete-container">

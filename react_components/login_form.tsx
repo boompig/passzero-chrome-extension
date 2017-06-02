@@ -3,15 +3,18 @@ import * as React from "react";
 import PassZeroAPI from "./passzero_api";
 
 /**
- * The login widget
- * On success, need to call some sort of parent event...
- *
  * Expected props:
  *      - email: the email in the form
  *      - onEmailChange: callback for when email field changes
  *      - onLoginSuccess: callback for when login is successful
  */
-class LoginForm extends React.Component<any, any> {
+interface LoginProps {
+    email: string;
+    onEmailChange: any;
+    onLoginSuccess: any;
+}
+
+class LoginForm extends React.Component<LoginProps, any> {
     constructor(props) {
         super(props);
         this.state = {

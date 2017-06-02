@@ -1,13 +1,26 @@
 import * as React from "react";
 import Utils from "./passzero_utils";
 
+
+interface DecEntry {
+    username: string;
+    account: string;
+    password: string;
+}
+
 /**
  * Expected props:
  *      - entry -> decrypted entry
  *      - onBack -> callback for when back button clicked
  *      - onDeleteClick -> callback for when delete button clicked
  */
-class Entry extends React.Component<any, any> {
+interface EntryProps {
+    onBack: any;
+    onDeleteClick: any;
+    entry: DecEntry;
+}
+
+class Entry extends React.Component<EntryProps, any> {
     handlePasswordClick(event) {
         Utils.selectText(event.target);
     }
@@ -26,8 +39,8 @@ class Entry extends React.Component<any, any> {
                     </div>
                     <div className="entry-username">{ this.props.entry.username }</div>
                     <div className="entry-password password-hidden"
-                    onClick={ this.handlePasswordClick }>
-                        { this.props.entry.password }
+                        onClick={ this.handlePasswordClick }>
+                            { this.props.entry.password }
                     </div>
                 </div>
             </div>

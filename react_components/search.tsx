@@ -1,12 +1,22 @@
 import * as React from "react";
 
+interface Entry {
+    id: number;
+    account: string;
+}
+
+interface SearchResultsLinkProps {
+    onEntryClick: any;
+    entry: Entry;
+}
+
 /**
  * Expected props:
  *      - entry -> entry object which has ID and account
  *          so can be encrypted or decrypted
  *      - onEntryClick -> callback when entry selected
  */
-class SearchResultsLink extends React.Component<any, any> {
+class SearchResultsLink extends React.Component<SearchResultsLinkProps, any> {
     constructor(props) {
         super(props);
         this.handleClick = this.handleClick.bind(this);
@@ -28,10 +38,16 @@ class SearchResultsLink extends React.Component<any, any> {
     }
 };
 
+interface SearchResultsProps {
+    onEntryClick: any;
+    entries: Array<Entry>;
+    searchString: string;
+}
+
 /**
  * Container for search results.
  */
-class SearchResults extends React.Component<any, any> {
+class SearchResults extends React.Component<SearchResultsProps, any> {
     render() {
         const searchString = this.props.searchString;
         let results = [];
@@ -54,11 +70,16 @@ class SearchResults extends React.Component<any, any> {
     }
 };
 
+interface SearchProps {
+    onEntryClick: any;
+    entries: Array<Entry>;
+}
+
 /**
  * Component for search
  * Includes searchresults and search string
  */
-class Search extends React.Component<any, any> {
+class Search extends React.Component<SearchProps, any> {
     constructor(props) {
         super(props);
         this.state = { "searchString": "" };
