@@ -5,17 +5,17 @@ interface Entry {
     account: string;
 }
 
-interface SearchResultsLinkProps {
-    onEntryClick: any;
-    entry: Entry;
-}
-
 /**
  * Expected props:
  *      - entry -> entry object which has ID and account
  *          so can be encrypted or decrypted
  *      - onEntryClick -> callback when entry selected
  */
+interface SearchResultsLinkProps {
+    onEntryClick: any;
+    entry: Entry;
+}
+
 class SearchResultsLink extends React.Component<SearchResultsLinkProps, any> {
     constructor(props) {
         super(props);

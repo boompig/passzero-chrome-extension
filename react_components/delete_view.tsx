@@ -11,10 +11,6 @@ interface Props {
     entry: Entry;
 }
 
-/**
- * This file is responsible for the UI aspects of the PassZero Chrome extension
- * Each element
- */
 class DeleteView extends React.Component<Props, any> {
     render() {
         return (
