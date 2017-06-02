@@ -1,0 +1,11 @@
+{
+    "include": [
+        "react_components/*.tsx",
+        "react_components/*.ts"
+    ],
+    "outDir": "build",
+    "compilerOptions": {
+        "sourceMap": false,
+        "jsx": "react"
+    }
+}

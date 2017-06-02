@@ -4,11 +4,13 @@
   "description": "Chrome extension for PassZero password manager",
   "main": "Gruntfile.js",
   "scripts": {
-    "test": "eslint react_components/*.jsx || exit 1"
+    "test": "eslint react_components/*.jsx || exit 1",
+    "tsc": "tsc"
   },
   "author": "Daniel Kats",
   "license": "MIT",
   "dependencies": {
+    "@types/react": "^15.0.25",
     "bootstrap": "^3.3.6",
     "grunt": "^0.4.5",
     "grunt-browserify": "^4.0.1",
@@ -20,7 +22,12 @@
   },
   "private": true,
   "devDependencies": {
+    "@types/node": "^7.0.23",
+    "awesome-typescript-loader": "^3.1.3",
+    "babel-loader": "^7.0.0",
     "babel-preset-es2015": "^6.24.1",
+    "babel-preset-react": "^6.24.1",
+    "babelify": "^7.3.0",
     "eslint": "^3.19.0",
     "eslint-config-google": "^0.7.1",
     "eslint-config-standard": "^10.2.1",
@@ -28,6 +35,16 @@
     "eslint-plugin-node": "^4.2.2",
     "eslint-plugin-promise": "^3.5.0",
     "eslint-plugin-react": "^7.0.1",
-    "eslint-plugin-standard": "^3.0.1"
+    "eslint-plugin-standard": "^3.0.1",
+    "grunt-ts": "^6.0.0-beta.16",
+    "grunt-typescript": "^0.8.0",
+    "gulp": "^3.9.1",
+    "gulp-browserify": "^0.5.1",
+    "gulp-rename": "^1.2.2",
+    "gulp-ts": "^0.3.0",
+    "gulp-typescript": "^3.1.7",
+    "ts-loader": "^2.1.0",
+    "typescript": "^2.3.4",
+    "webpack": "^2.6.1"
   }
 }

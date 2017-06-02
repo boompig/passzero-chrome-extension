@@ -9,3 +9,9 @@ node_modules
 npm-debug.log
 # TODO for now
 dist/bootstrap
+
+# typescript junk
+.tscache
+# typescript auto-generated files
+react_components/passzero_api.js
+react_components/passzero_api.js.map

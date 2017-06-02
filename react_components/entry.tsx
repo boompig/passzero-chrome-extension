@@ -1,5 +1,5 @@
-const React = require("react");
-const Utils = require("./passzero_utils.js");
+import * as React from "react";
+import Utils from "./passzero_utils";
 
 /**
  * Expected props:
@@ -7,7 +7,7 @@ const Utils = require("./passzero_utils.js");
  *      - onBack -> callback for when back button clicked
  *      - onDeleteClick -> callback for when delete button clicked
  */
-class Entry extends React.Component {
+class Entry extends React.Component<any, any> {
     handlePasswordClick(event) {
         Utils.selectText(event.target);
     }
@@ -35,6 +35,4 @@ class Entry extends React.Component {
     }
 };
 
-module.exports = {
-    Entry: Entry
-};
+export default Entry;

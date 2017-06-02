@@ -1,10 +1,10 @@
-const React = require("react");
+import * as React from "react";
 
 /**
  * This file is responsible for the UI aspects of the PassZero Chrome extension
  * Each element
  */
-class DeleteView extends React.Component {
+class DeleteView extends React.Component<any, any> {
     render() {
         return (
             <div id="confirm-delete-container">
@@ -21,6 +21,5 @@ class DeleteView extends React.Component {
     }
 };
 
-module.exports = {
-    DeleteView: DeleteView
-};
+export default DeleteView;
+

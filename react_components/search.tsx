@@ -1,4 +1,4 @@
-const React = require("react");
+import * as React from "react";
 
 /**
  * Expected props:
@@ -6,7 +6,7 @@ const React = require("react");
  *          so can be encrypted or decrypted
  *      - onEntryClick -> callback when entry selected
  */
-class SearchResultsLink extends React.Component {
+class SearchResultsLink extends React.Component<any, any> {
     constructor(props) {
         super(props);
         this.handleClick = this.handleClick.bind(this);
@@ -31,7 +31,7 @@ class SearchResultsLink extends React.Component {
 /**
  * Container for search results.
  */
-class SearchResults extends React.Component {
+class SearchResults extends React.Component<any, any> {
     render() {
         const searchString = this.props.searchString;
         let results = [];
@@ -58,7 +58,7 @@ class SearchResults extends React.Component {
  * Component for search
  * Includes searchresults and search string
  */
-class Search extends React.Component {
+class Search extends React.Component<any, any> {
     constructor(props) {
         super(props);
         this.state = { "searchString": "" };
@@ -73,7 +73,7 @@ class Search extends React.Component {
                 <form id="search-form" role="search">
                     <input className="form-control" type="search"
                         placeholder="search"
-                        onChange={ this.handleChange } tabIndex="1" />
+                        onChange={ this.handleChange } tabIndex={ 1 } />
                 </form>
                 <SearchResults entries={ this.props.entries }
                     searchString={searchString}
@@ -83,6 +83,5 @@ class Search extends React.Component {
     }
 };
 
-module.exports = {
-    Search: Search
-};
+export default Search;
+

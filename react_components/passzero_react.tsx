@@ -1,21 +1,21 @@
-"use strict";
+declare var chrome: any;
 
-const PassZeroAPI = require("./passzero_api.js");
 const PassZeroDomain = "https://passzero.herokuapp.com";
-const ReactDOM = require("react-dom");
-const React = require("react");
+import ReactDOM from "react-dom";
+import * as React from "react";
 
-const LoginForm = require("./login_form.jsx").LoginForm;
-const DeleteView = require("./delete_view.jsx").DeleteView;
-const Entry = require("./entry.jsx").Entry;
-const Search = require("./search.jsx").Search;
+import PassZeroAPI from "./passzero_api";
+import LoginForm from "./login_form";
+import DeleteView from "./delete_view";
+import Entry from "./entry";
+import Search from "./search";
 
 /**
  * Top-level component
  * Manages overall state of app
  */
-class PassZero extends React.Component {
-    constructor(props) {
+class PassZero extends React.Component<any, any> {
+    constructor(props: any) {
         super(props);
         this.state = {
             loggedIn: false,
