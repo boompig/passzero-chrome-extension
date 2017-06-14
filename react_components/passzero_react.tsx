@@ -1,7 +1,7 @@
 declare var chrome: any;
 
 const PassZeroDomain = "https://passzero.herokuapp.com";
-import ReactDOM from "react-dom";
+import * as ReactDOM from "react-dom";
 import * as React from "react";
 
 import PassZeroAPI from "./passzero_api";
@@ -49,7 +49,7 @@ class PassZero extends React.Component<any, any> {
             url: PassZeroDomain,
             name: "email",
             value: this.state.email
-        }, function(cookie) {
+        }, (cookie) => {
             console.log("Email cookie is set:");
             console.log(cookie);
         });
@@ -96,7 +96,7 @@ class PassZero extends React.Component<any, any> {
             url: PassZeroDomain,
             name: "session"
         };
-        chrome.cookies.remove(obj, function(details) {
+        chrome.cookies.remove(obj, (details) => {
             console.log("remove session cookie response:");
             console.log(details);
         });
@@ -225,7 +225,7 @@ class PassZero extends React.Component<any, any> {
                     this.setState({ email: cookie.value });
                 }
             });
-            chrome.cookies.get(obj, function(cookie) {
+            chrome.cookies.get(obj, (cookie) => {
                 if (cookie && cookie.value) {
                     console.log("logged in!");
                     this.setState({ loggedIn: true });

@@ -22,5 +22,6 @@
     },
     "plugins": [
         "react"
-    ]
+    ],
+    "parser": "typescript-eslint-parser"
 }

@@ -83,6 +83,8 @@ class Search extends React.Component<SearchProps, any> {
     constructor(props) {
         super(props);
         this.state = { "searchString": "" };
+        // do the stupid binding
+        this.handleChange = this.handleChange.bind(this);
     }
     handleChange(e) {
         this.setState({ searchString: e.target.value });
@@ -94,6 +96,7 @@ class Search extends React.Component<SearchProps, any> {
                 <form id="search-form" role="search">
                     <input className="form-control" type="search"
                         placeholder="search"
+                        autoFocus={ true }
                         onChange={ this.handleChange } tabIndex={ 1 } />
                 </form>
                 <SearchResults entries={ this.props.entries }
