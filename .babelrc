@@ -1,0 +1,11 @@
+{
+    "presets": ["react"],
+    "env": {
+        "production": {
+            "plugins": ["transform-react-remove-prop-types"]
+        },
+        "development": {
+            "plugins": ["transform-react-remove-prop-types"]
+        }
+    }
+}

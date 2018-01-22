@@ -14,8 +14,19 @@
     "grunt-browserify": "^4.0.1",
     "grunt-contrib-watch": "^0.6.1",
     "grunt-react": "^0.12.3",
-    "jquery": "^2.1.4",
-    "react": "^0.14.3"
+    "jquery": "^3.3.1",
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0",
+    "webpack": "^3.10.0"
   },
-  "private": true
+  "private": true,
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-plugin-transform-react-remove-prop-types": "^0.4.12",
+    "babel-preset-es2016": "^6.24.1",
+    "babel-preset-react": "^6.24.1",
+    "eslint": "^4.16.0",
+    "eslint-plugin-react": "^7.5.1"
+  }
 }
