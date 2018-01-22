@@ -13,11 +13,10 @@ This extension can either be built from source or downloaded from [here](https:/
 ### Setting up Environment
 
 * `npm install`
-* `bower install`
 
 ### Building the Unpacked Extension
 
-* `grunt`
+* `webpack`
 
 ### Installing
 
