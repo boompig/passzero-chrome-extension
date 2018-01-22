@@ -1,10 +1,12 @@
 {
   "name": "passzero-chrome-extension",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Chrome extension for PassZero password manager",
-  "main": "Gruntfile.js",
+  "main": "react_components/passzero_react.jsx",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint ./react_components/*",
+    "build": "webpack"
   },
   "author": "Daniel Kats",
   "license": "MIT",
