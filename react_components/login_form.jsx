@@ -9,7 +9,6 @@ class LoginForm extends React.Component {
 	constructor() {
 		super();
 		this.state = {
-			errorMsg: null,
 			password: ""
 		};
 		this.handleSubmit = this.handleSubmit.bind(this);
@@ -33,8 +32,8 @@ class LoginForm extends React.Component {
 	render() {
 		return (
 			<form id="login-form" role="form" onSubmit={ this.handleSubmit }>
-				{ this.state.errorMsg ?
-					<div className="error">{ this.state.errorMsg }</div> : null }
+				{ this.props.errorMsg ?
+					<div className="error">{ this.props.errorMsg }</div> : null }
 				<input className="form-control" type="email" placeholder="email"
 					required="required" tabIndex="1"
 					value={ this.props.email }
@@ -52,7 +51,8 @@ class LoginForm extends React.Component {
 LoginForm.propTypes = {
 	email: PropTypes.string.isRequired,
 	onLoginSubmit: PropTypes.function.isRequired,
-	onEmailChange: PropTypes.function.isRequired
+	onEmailChange: PropTypes.function.isRequired,
+	errorMsg: PropTypes.string
 };
 
 export default LoginForm;

@@ -11,6 +11,7 @@ class Search extends React.Component {
 	constructor() {
 		super();
 		this.state = { searchString: "" };
+		this.handleChange = this.handleChange.bind(this);
 	}
 
 	handleChange(e) {

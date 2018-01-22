@@ -2,6 +2,10 @@ import React from "react";
 import PropTypes from "prop-types";
 
 export default class SearchResultsLink extends React.Component {
+	constructor() {
+		super();
+		this.handleClick = this.handleClick.bind(this);
+	}
 
 	handleClick(event) {
 		event.preventDefault();

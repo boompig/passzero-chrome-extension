@@ -4,6 +4,11 @@ import PropTypes from "prop-types";
 import Utils from "./passzero_utils.js";
 
 class Entry extends React.Component {
+	constructor() {
+		super();
+		this.handlePasswordClick = this.handlePasswordClick.bind(this);
+	}
+
 	handlePasswordClick(event) {
 		Utils.selectText(event.target);
 	}

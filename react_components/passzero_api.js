@@ -77,7 +77,7 @@ let PassZeroAPI = {
 	 */
 	createEntry: function(entry) {
 		return PassZeroAPI.getCSRFToken()
-			.then(function(response) {
+			.done(function(response) {
 				return PassZeroAPI._createEntry(entry, response);
 			});
 	},
@@ -92,7 +92,7 @@ let PassZeroAPI = {
 	 */
 	editEntry: function(entry_id, entry) {
 		return PassZeroAPI.getCSRFToken()
-			.then(function(response) {
+			.done(function(response) {
 				return PassZeroAPI._editEntry(entry_id, entry, response);
 			});
 	},
@@ -107,7 +107,7 @@ let PassZeroAPI = {
 	 */
 	deleteEntry: function(entry_id) {
 		return PassZeroAPI.getCSRFToken()
-			.then(function(response) {
+			.done(function(response) {
 				return PassZeroAPI._deleteEntry(entry_id, response);
 			});
 	},

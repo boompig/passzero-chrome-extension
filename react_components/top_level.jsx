@@ -11,6 +11,8 @@ const PassZeroDomain = "https://passzero.herokuapp.com";
 
 let Console = console;
 
+Console.log(PassZeroAPI);
+
 /**
  * Top-level component
  * Manages overall state of app
@@ -22,9 +24,30 @@ class PassZero extends React.Component {
 			loggedIn: false,
 			selectedEntry: null,
 			entries: [],
-			email: null,
-			deleteFlag: false
+			email: "",
+			deleteFlag: false,
+			loginErrorMsg: null
 		};
+
+		this._onLogin = this._onLogin.bind(this);
+		this._getEntries = this._getEntries.bind(this);
+		this._onLogout = this._onLogout.bind(this);
+
+		this.handleLoginSubmit = this.handleLoginSubmit.bind(this);
+
+		this.handleEntryBack = this.handleEntryBack.bind(this);
+		this.handleEntryClick = this.handleEntryClick.bind(this);
+
+		this.handleEmailChange = this.handleEmailChange.bind(this);
+
+		this.handleDeleteBack = this.handleDeleteBack.bind(this);
+		this.handleDeleteClick = this.handleDeleteClick.bind(this);
+
+		this.handleLock = this.handleLock.bind(this);
+
+		this.handleConfirmDelete = this.handleConfirmDelete.bind(this);
+
+		this.getEntryById = this.getEntryById.bind(this);
 	}
 
 	/**
@@ -39,7 +62,7 @@ class PassZero extends React.Component {
 			url: PassZeroDomain,
 			name: "email",
 			value: this.state.email
-		}, function (cookie) {
+		}, (cookie) => {
 			Console.log("Email cookie is set:");
 			Console.log(cookie);
 		});
@@ -54,14 +77,14 @@ class PassZero extends React.Component {
 		// get entries
 		Console.log("Loading entries...");
 		PassZeroAPI.getEntries()
-			.success(function (entries) {
+			.then((entries) => {
 				Console.log("Loaded entries");
 				Console.log(entries);
 				that.setState({
 					entries: entries
 				});
 			})
-			.error(function (response, textStatus, errorText) {
+			.fail((response, textStatus, errorText) => {
 				Console.log("Failed to get entries");
 				if (errorText === "UNAUTHORIZED") {
 					that.setState({
@@ -88,7 +111,7 @@ class PassZero extends React.Component {
 			url: PassZeroDomain,
 			name: "session"
 		};
-		chrome.cookies.remove(obj, function (details) {
+		chrome.cookies.remove(obj, (details) => {
 			Console.log("remove session cookie response:");
 			Console.log(details);
 		});
@@ -105,12 +128,12 @@ class PassZero extends React.Component {
 	handleLoginSubmit(form) {
 		var that = this;
 		PassZeroAPI.validateLogin(this.state.email, form.password)
-			.success(function() {
+			.done(() => {
 				Console.log("Logged in!");
 				that.setState({
 					loggedIn: true
 				});
-			}).error(function(response) {
+			}).fail((response) => {
 				var errorMsg;
 				if (response.status === 0) {
 					errorMsg = "This is meant to be run in an extension, not as a standalone site";
@@ -120,8 +143,8 @@ class PassZero extends React.Component {
 					errorMsg = "Failed to log in";
 				}
 				Console.log(arguments);
-				that.refs.loginForm.setState({
-					errorMsg: errorMsg
+				this.setState({
+					"loginErrorMsg": errorMsg
 				});
 			});
 	}
@@ -151,7 +174,7 @@ class PassZero extends React.Component {
 	handleLock() {
 		var that = this;
 		// also hit the logout API
-		PassZeroAPI.logout().then(function() {
+		PassZeroAPI.logout().then(() => {
 			that.setState({ loggedIn: false });
 		});
 	}
@@ -178,7 +201,7 @@ class PassZero extends React.Component {
 		var that = this;
 		Console.log("Deleting entry with ID " + this.state.selectedEntry);
 		PassZeroAPI.deleteEntry(this.state.selectedEntry)
-			.then(function (response) {
+			.then((response) => {
 				Console.log("Deleted");
 				Console.log(response);
 
@@ -198,7 +221,9 @@ class PassZero extends React.Component {
 					<LoginForm
 						onLoginSubmit={ this.handleLoginSubmit }
 						email={ this.state.email }
-						onEmailChange={ this.handleEmailChange } /> }
+						onEmailChange={ this.handleEmailChange }
+						errorMsg={ this.state.loginErrorMsg } 
+					/> }
 				{ this.state.loggedIn && !this.state.selectedEntry ?
 					<Search entries={ this.state.entries }
 						onEntryClick={ this.handleEntryClick } /> :
@@ -234,19 +259,23 @@ class PassZero extends React.Component {
 			url: PassZeroDomain,
 			name: "email"
 		};
-		chrome.cookies.get(emailCookieProps, function (cookie) {
-			Console.log("email cookie:");
-			Console.log(cookie);
-			if (cookie) {
-				that.setState({ email: cookie.value });
-			}
-		});
-		chrome.cookies.get(obj, function (cookie) {
-			if (cookie && cookie.value) {
-				Console.log("logged in!");
-				that.setState({ loggedIn: true });
-			}
-		});
+		if(typeof(chrome) === "undefined") {
+			Console.error("No access to Chrome extension API");
+		} else {
+			chrome.cookies.get(emailCookieProps, (cookie) => {
+				Console.log("email cookie:");
+				Console.log(cookie);
+				if (cookie) {
+					that.setState({ email: cookie.value });
+				}
+			});
+			chrome.cookies.get(obj, (cookie) => {
+				if (cookie && cookie.value) {
+					Console.log("logged in!");
+					that.setState({ loggedIn: true });
+				}
+			});
+		}
 	}
 }
 
