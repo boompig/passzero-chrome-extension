@@ -1,11 +1,22 @@
-# ignore generated javascript
+# ignore generated files
 dist/js/passzero_extension.js
+
 # private key
 *.pem
+
 # packed extension
 *.crx
+
 # ignore npm stuff
 node_modules
 npm-debug.log
+package-lock.json
+
+# typescript
+.tscache
+
 # TODO for now
 dist/bootstrap
+
+# Mac garbage
+**/.DS_Store
