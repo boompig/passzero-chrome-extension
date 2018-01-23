@@ -28,7 +28,7 @@ class Search extends React.Component<ISearchProps, ISearchState> {
 	}
 
 	handleChange(e: SyntheticEvent<HTMLElement>) {
-		if(e instanceof window.HTMLInputElement) {
+		if(e.target instanceof window.HTMLInputElement) {
 			this.setState({ searchString: e.target.value });
 		}
 	}
