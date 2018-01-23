@@ -6,9 +6,9 @@ let PassZeroUtils = {
 	*/
 	selectText: function selectText(element) {
 		"use strict";
-		var doc = document;
-		var text = element;
-		var range, selection;
+		let doc = document;
+		let text = element;
+		let range, selection;
 		if (doc.body.createTextRange) {
 			range = document.body.createTextRange();
 			range.moveToElementText(text);
@@ -22,7 +22,7 @@ let PassZeroUtils = {
 		}
 	},
 	deselectText: function deselectText () {
-		var doc = document, range, selection;
+		let doc = document, range, selection;
 		if (doc.body.createTextRange) {
 			range = document.body.createTextRange();
 			range.select();

@@ -9,7 +9,7 @@ export default class SearchResultsLink extends React.Component {
 
 	handleClick(event) {
 		event.preventDefault();
-		var entryID = this.props.entry.id;
+		const entryID = this.props.entry.id;
 		this.props.onEntryClick(entryID);
 	}
 
