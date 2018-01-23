@@ -1,15 +1,24 @@
-import React from "react";
-import PropTypes from "prop-types";
+// @flow
+
+import * as React from "react";
 
 import Utils from "./passzero_utils.js";
 
-class Entry extends React.Component {
-	constructor() {
-		super();
+type Props = {
+	onBack: Function,
+	onDeleteClick: Function,
+	entry: any
+};
+
+class Entry extends React.Component<Props, {}> {
+	handlePasswordClick: Function;
+
+	constructor(props: Props) {
+		super(props);
 		this.handlePasswordClick = this.handlePasswordClick.bind(this);
 	}
 
-	handlePasswordClick(event) {
+	handlePasswordClick(event: SyntheticEvent<HTMLElement>) {
 		Utils.selectText(event.target);
 	}
 
@@ -35,11 +44,5 @@ class Entry extends React.Component {
 		);
 	}
 }
-
-Entry.propTypes = {
-	onBack: PropTypes.function.isRequired,
-	onDeleteClick: PropTypes.function.isRequired,
-	entry: PropTypes.object.isRequired
-};
 
 export default Entry;

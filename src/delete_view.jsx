@@ -1,7 +1,15 @@
-import React from "react";
-import PropTypes from "prop-types";
+// @flow
 
-class DeleteView extends React.Component {
+import React from "react";
+
+type IDeleteViewProps = {
+	onBack: Function,
+	onDeleteClick: Function,
+	entry: any
+};
+
+class DeleteView extends React.Component<IDeleteViewProps, {}> {
+
 	render() {
 		return (
 			<div id="confirm-delete-container">
@@ -16,11 +24,5 @@ class DeleteView extends React.Component {
 		);
 	}
 }
-
-DeleteView.propTypes = {
-	onBack: PropTypes.function.isRequired,
-	onDeleteClick: PropTypes.function.isRequired,
-	entry: PropTypes.object.isRequired
-};
 
 export default DeleteView;

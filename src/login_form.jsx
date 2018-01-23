@@ -1,13 +1,29 @@
-import React from "react";
-import PropTypes from "prop-types";
+// @flow
+
+import * as React from "react";
+
+type ILoginFormProps = {
+	email: string,
+	onLoginSubmit: Function,
+	onEmailChange: Function,
+	errorMsg: ?string
+};
+
+type ILoginFormState = {
+	password: string
+};
 
 /**
  * The login widget
  * On success, need to call some sort of parent event...
  */
-class LoginForm extends React.Component {
-	constructor() {
-		super();
+class LoginForm extends React.Component<ILoginFormProps, ILoginFormState> {
+
+	handleSubmit: Function;
+	handlePasswordChange: Function;
+
+	constructor(props: ILoginFormProps) {
+		super(props);
 		this.state = {
 			password: ""
 		};
@@ -15,7 +31,7 @@ class LoginForm extends React.Component {
 		this.handlePasswordChange = this.handlePasswordChange.bind(this);
 	}
 
-	handleSubmit(event) {
+	handleSubmit(event: SyntheticEvent<HTMLElement>) {
 		event.preventDefault();
 		let email = this.props.email;
 		let password = this.state.password;
@@ -25,8 +41,10 @@ class LoginForm extends React.Component {
 		});
 	}
 
-	handlePasswordChange(event) {
-		this.setState({ "password": event.target.value });
+	handlePasswordChange(event: SyntheticEvent<HTMLElement>) {
+		if(event instanceof window.HTMLInputElement) {
+			this.setState({ "password": event.target.value });
+		}
 	}
 
 	render() {
@@ -47,12 +65,5 @@ class LoginForm extends React.Component {
 		);
 	}
 }
-
-LoginForm.propTypes = {
-	email: PropTypes.string.isRequired,
-	onLoginSubmit: PropTypes.function.isRequired,
-	onEmailChange: PropTypes.function.isRequired,
-	errorMsg: PropTypes.string
-};
 
 export default LoginForm;
