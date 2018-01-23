@@ -1,21 +1,36 @@
-import React from "react";
-import PropTypes from "prop-types";
+// @flow
+
+import * as React from "react";
 
 import SearchResults from "./search_results.jsx";
+
+type ISearchProps = {
+	onEntryClick: Function,
+	entries: Array<any>
+};
+
+type ISearchState = {
+	searchString: string,
+};
 
 /**
  * Component for search
  * Includes searchresults and search string
  */
-class Search extends React.Component {
-	constructor() {
-		super();
+class Search extends React.Component<ISearchProps, ISearchState> {
+
+	handleChange: (e: SyntheticEvent<HTMLElement>) => void;
+
+	constructor(props: ISearchProps) {
+		super(props);
 		this.state = { searchString: "" };
 		this.handleChange = this.handleChange.bind(this);
 	}
 
-	handleChange(e) {
-		this.setState({ searchString: e.target.value });
+	handleChange(e: SyntheticEvent<HTMLElement>) {
+		if(e instanceof window.HTMLInputElement) {
+			this.setState({ searchString: e.target.value });
+		}
 	}
 
 	render() {
@@ -32,10 +47,5 @@ class Search extends React.Component {
 		);
 	}
 }
-
-Search.propTypes = {
-	onEntryClick: PropTypes.function.isRequired,
-	entries: PropTypes.arrayOf(PropTypes.object)
-};
 
 export default Search;

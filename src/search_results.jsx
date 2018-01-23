@@ -1,12 +1,19 @@
+// @flow
+
 import React from "react";
-import PropTypes from "prop-types";
 
 import SearchResultsLink from "./search_results_link.jsx";
+
+type ISearchResultsProps = {
+	searchString: string,
+	entries: any,
+	onEntryClick: Function
+};
 
 /**
  * Container for search results.
  */
-class SearchResults extends React.Component {
+class SearchResults extends React.Component<ISearchResultsProps, {}> {
 	render() {
 		const searchString = this.props.searchString;
 		const results = [];
@@ -29,10 +36,5 @@ class SearchResults extends React.Component {
 	}
 }
 
-SearchResults.propTypes = {
-	searchString: PropTypes.string.isRequired,
-	entries: PropTypes.object.isRequired,
-	onEntryClick: PropTypes.function.isRequired
-};
 
 export default SearchResults;

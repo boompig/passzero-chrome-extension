@@ -1,6 +1,6 @@
-/* global chrome */
+// @flow
 
-import React from "react";
+import * as React from "react";
 import PassZeroAPI from "./passzero_api.js";
 import LoginForm from "./login_form.jsx";
 import Search from "./search.jsx";
@@ -11,13 +11,46 @@ const PassZeroDomain = "https://passzero.herokuapp.com";
 
 let Console = console;
 
-Console.log(PassZeroAPI);
+declare var chrome: any;
+
+type T_LoginForm = {
+	email: string,
+	password: string
+};
+
+type T_Entry = any;
+
+type IProps = {};
+
+type IState = {
+	loggedIn: bool,
+	selectedEntry: ?T_Entry,
+	entries: Array<T_Entry>,
+	email: string,
+	deleteFlag: bool,
+	loginErrorMsg: ?string
+};
 
 /**
  * Top-level component
  * Manages overall state of app
  */
-class PassZero extends React.Component {
+class PassZero extends React.Component<IProps, IState> {
+	_onLogin: Function;
+	_getEntries: Function;
+	_onLogout: Function;
+
+	handleLoginSubmit: Function;
+	handleEntryBack: Function;
+	handleEntryClick: Function;
+	handleEmailChange: Function;
+	handleDeleteBack: Function;
+	handleDeleteClick: Function;
+	handleLock: Function;
+	handleConfirmDelete: Function;
+
+	getEntryById: Function;
+
 	constructor() {
 		super();
 		this.state = {
@@ -34,17 +67,12 @@ class PassZero extends React.Component {
 		this._onLogout = this._onLogout.bind(this);
 
 		this.handleLoginSubmit = this.handleLoginSubmit.bind(this);
-
 		this.handleEntryBack = this.handleEntryBack.bind(this);
 		this.handleEntryClick = this.handleEntryClick.bind(this);
-
 		this.handleEmailChange = this.handleEmailChange.bind(this);
-
 		this.handleDeleteBack = this.handleDeleteBack.bind(this);
 		this.handleDeleteClick = this.handleDeleteClick.bind(this);
-
 		this.handleLock = this.handleLock.bind(this);
-
 		this.handleConfirmDelete = this.handleConfirmDelete.bind(this);
 
 		this.getEntryById = this.getEntryById.bind(this);
@@ -116,7 +144,7 @@ class PassZero extends React.Component {
 		});
 	}
 
-	componentWillUpdate(nextProps, nextState) {
+	componentWillUpdate(nextProps: IProps, nextState: IState) {
 		if (!this.state.loggedIn && nextState.loggedIn) {
 			this._onLogin();
 		} else if (this.state.loggedIn && !nextState.loggedIn) {
@@ -124,7 +152,7 @@ class PassZero extends React.Component {
 		}
 	}
 
-	handleLoginSubmit(form) {
+	handleLoginSubmit(form: T_LoginForm) {
 		PassZeroAPI.validateLogin(this.state.email, form.password)
 			.done(() => {
 				Console.log("Logged in!");
@@ -147,14 +175,14 @@ class PassZero extends React.Component {
 			});
 	}
 
-	handleEntryClick(entryID) {
+	handleEntryClick(entryID: number) {
 		Console.log("Selected entry: " + entryID);
 		this.setState({
 			selectedEntry: entryID
 		});
 	}
 
-	getEntryById(entryID) {
+	getEntryById(entryID: number) {
 		for (let i = 0; i < this.state.entries.length; i++) {
 			if (this.state.entries[i].id === entryID) {
 				return this.state.entries[i];
@@ -176,10 +204,12 @@ class PassZero extends React.Component {
 		});
 	}
 
-	handleEmailChange(event) {
-		this.setState({
-			email: event.target.value
-		});
+	handleEmailChange(event: SyntheticEvent<HTMLElement>) {
+		if(event instanceof window.HTMLInputElement) {
+			this.setState({
+				email: event.target.value
+			});
+		}
 	}
 
 	handleDeleteClick() {
@@ -195,19 +225,23 @@ class PassZero extends React.Component {
 	}
 
 	handleConfirmDelete() {
-		Console.log("Deleting entry with ID " + this.state.selectedEntry);
-		PassZeroAPI.deleteEntry(this.state.selectedEntry)
-			.then((response) => {
-				Console.log("Deleted");
-				Console.log(response);
+		if(this.state.selectedEntry) {
+			Console.log("Deleting entry with ID " + this.state.selectedEntry);
+			PassZeroAPI.deleteEntry(this.state.selectedEntry)
+				.then((response) => {
+					Console.log("Deleted");
+					Console.log(response);
 
-				// deselect entry and unset the flag
-				this.setState({
-					deleteFlag: false,
-					selectedEntry: null
+					// deselect entry and unset the flag
+					this.setState({
+						deleteFlag: false,
+						selectedEntry: null
+					});
+					this._getEntries();
 				});
-				this._getEntries();
-			});
+		} else {
+			Console.error("No entry selected");
+		}
 	}
 
 	render() {
