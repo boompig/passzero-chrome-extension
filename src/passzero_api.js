@@ -1,3 +1,5 @@
+// @flow
+
 import * as $ from "jquery";
 
 $.postJSON = function(url, data) {
@@ -32,6 +34,8 @@ $.deleteJSON = function(url, params) {
 	});
 };
 
+type T_Entry = any;
+
 /**
  * Requires JQuery
  */
@@ -40,7 +44,7 @@ const PassZeroAPI = {
 
 	apiBaseURL: "https://passzero.herokuapp.com/api",
 
-	_copy: function(obj) {
+	_copy: function(obj: any) {
 		const newObj = {};
 		for (let k in obj) {
 			newObj[k] = obj[k];
@@ -50,7 +54,7 @@ const PassZeroAPI = {
 	/**
 	 * Authenticate given user using PassZero API. Return a promise.
 	 */
-	validateLogin: function(email, password) {
+	validateLogin: function(email: string, password: string) {
 		const data = { email: email, password: password };
 		return $.postJSON(PassZeroAPI.apiBaseURL + "/login", data);
 	},
@@ -67,7 +71,7 @@ const PassZeroAPI = {
 	/**
 	 * Create a new entry given a CSRF token
 	 */
-	_createEntry: function (entry, csrf_token) {
+	_createEntry: function (entry: T_Entry, csrf_token: string) {
 		const data = { entry: entry, csrf_token: csrf_token };
 		return $.postJSON(PassZeroAPI.apiBaseURL + "/entries/new", data);
 	},
@@ -75,13 +79,13 @@ const PassZeroAPI = {
 	 * Convenience method to create an entry in one step.
 	 * User must be logged in.
 	 */
-	createEntry: function(entry) {
+	createEntry: function(entry: T_Entry) {
 		return PassZeroAPI.getCSRFToken()
 			.done(function(response) {
 				return PassZeroAPI._createEntry(entry, response);
 			});
 	},
-	_editEntry: function(entry_id, entry, csrf_token) {
+	_editEntry: function(entry_id: number, entry: T_Entry, csrf_token: string) {
 		const url = PassZeroAPI.baseURL + "/entries/" + entry_id;
 		const data = { entry: entry, csrf_token: csrf_token };
 		return $.postJSON(url, data);
@@ -90,13 +94,13 @@ const PassZeroAPI = {
 	 * Convenience method to edit an entry in one step.
 	 * User must be logged in.
 	 */
-	editEntry: function(entry_id, entry) {
+	editEntry: function(entry_id: number, entry: T_Entry) {
 		return PassZeroAPI.getCSRFToken()
 			.done(function(response) {
 				return PassZeroAPI._editEntry(entry_id, entry, response);
 			});
 	},
-	_deleteEntry: function(entry_id, csrf_token) {
+	_deleteEntry: function(entry_id: number, csrf_token: string) {
 		const params = { csrf_token: csrf_token };
 		const url = PassZeroAPI.apiBaseURL + "/entries/" + entry_id;
 		return $.deleteJSON(url, params);
@@ -105,7 +109,7 @@ const PassZeroAPI = {
 	 * Convenience method to delete an entry in one step.
 	 * User must be logged in.
 	 */
-	deleteEntry: function(entry_id) {
+	deleteEntry: function(entry_id: number) {
 		return PassZeroAPI.getCSRFToken()
 			.done(function(response) {
 				return PassZeroAPI._deleteEntry(entry_id, response);

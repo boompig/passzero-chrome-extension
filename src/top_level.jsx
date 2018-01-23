@@ -23,11 +23,11 @@ type T_Entry = any;
 type IProps = {};
 
 type IState = {
-	loggedIn: bool,
-	selectedEntry: ?T_Entry,
+	loggedIn: boolean,
+	selectedEntry: ?number,
 	entries: Array<T_Entry>,
 	email: string,
-	deleteFlag: bool,
+	deleteFlag: boolean,
 	loginErrorMsg: ?string
 };
 
@@ -225,9 +225,10 @@ class PassZero extends React.Component<IProps, IState> {
 	}
 
 	handleConfirmDelete() {
-		if(this.state.selectedEntry) {
-			Console.log("Deleting entry with ID " + this.state.selectedEntry);
-			PassZeroAPI.deleteEntry(this.state.selectedEntry)
+		const selectedEntry = this.state.selectedEntry;
+		if(selectedEntry !== null && selectedEntry !== undefined) {
+			Console.log("Deleting entry with ID " + selectedEntry);
+			PassZeroAPI.deleteEntry(selectedEntry)
 				.then((response) => {
 					Console.log("Deleted");
 					Console.log(response);
