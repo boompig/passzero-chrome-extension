@@ -4,16 +4,18 @@ import * as React from "react";
 
 import Utils from "./passzero_utils.js";
 
-type Props = {
+type IEntryState = {};
+
+type IEntryProps = {
 	onBack: Function,
 	onDeleteClick: Function,
 	entry: any
 };
 
-class Entry extends React.Component<Props, {}> {
+class Entry extends React.Component<IEntryProps, IEntryState> {
 	handlePasswordClick: Function;
 
-	constructor(props: Props) {
+	constructor(props: IEntryProps) {
 		super(props);
 		this.handlePasswordClick = this.handlePasswordClick.bind(this);
 	}
