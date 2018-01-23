@@ -73,21 +73,20 @@ class PassZero extends React.Component {
 	 * Retrieve entries from the server
 	 */
 	_getEntries() {
-		var that = this;
 		// get entries
 		Console.log("Loading entries...");
 		PassZeroAPI.getEntries()
 			.then((entries) => {
 				Console.log("Loaded entries");
 				Console.log(entries);
-				that.setState({
+				this.setState({
 					entries: entries
 				});
 			})
 			.fail((response, textStatus, errorText) => {
 				Console.log("Failed to get entries");
 				if (errorText === "UNAUTHORIZED") {
-					that.setState({
+					this.setState({
 						loggedIn: false
 					});
 				}
@@ -97,8 +96,8 @@ class PassZero extends React.Component {
 	/**
 	 * Called when logout state has been set.
 	 * It is already the case that:
-	 * 		1. We are logged out with respect to the server
-	 *	  2. state says we are logged out
+	 *      1. We are logged out with respect to the server
+	 *      2. state says we are logged out
 	 */
 	_onLogout() {
 		Console.log("Logged out");
@@ -107,7 +106,7 @@ class PassZero extends React.Component {
 		});
 		// current session is not correct
 		// delete the session
-		var obj = {
+		const obj = {
 			url: PassZeroDomain,
 			name: "session"
 		};
@@ -126,15 +125,14 @@ class PassZero extends React.Component {
 	}
 
 	handleLoginSubmit(form) {
-		var that = this;
 		PassZeroAPI.validateLogin(this.state.email, form.password)
 			.done(() => {
 				Console.log("Logged in!");
-				that.setState({
+				this.setState({
 					loggedIn: true
 				});
 			}).fail((response) => {
-				var errorMsg;
+				let errorMsg = "";
 				if (response.status === 0) {
 					errorMsg = "This is meant to be run in an extension, not as a standalone site";
 				} else if (response.status === 401) {
@@ -157,7 +155,7 @@ class PassZero extends React.Component {
 	}
 
 	getEntryById(entryID) {
-		for (var i = 0; i < this.state.entries.length; i++) {
+		for (let i = 0; i < this.state.entries.length; i++) {
 			if (this.state.entries[i].id === entryID) {
 				return this.state.entries[i];
 			}
@@ -172,10 +170,9 @@ class PassZero extends React.Component {
 	}
 
 	handleLock() {
-		var that = this;
 		// also hit the logout API
 		PassZeroAPI.logout().then(() => {
-			that.setState({ loggedIn: false });
+			this.setState({ loggedIn: false });
 		});
 	}
 
@@ -198,7 +195,6 @@ class PassZero extends React.Component {
 	}
 
 	handleConfirmDelete() {
-		var that = this;
 		Console.log("Deleting entry with ID " + this.state.selectedEntry);
 		PassZeroAPI.deleteEntry(this.state.selectedEntry)
 			.then((response) => {
@@ -206,11 +202,11 @@ class PassZero extends React.Component {
 				Console.log(response);
 
 				// deselect entry and unset the flag
-				that.setState({
+				this.setState({
 					deleteFlag: false,
 					selectedEntry: null
 				});
-				that._getEntries();
+				this._getEntries();
 			});
 	}
 
@@ -250,12 +246,11 @@ class PassZero extends React.Component {
 	}
 
 	componentWillMount() {
-		var obj = {
+		const obj = {
 			url: PassZeroDomain,
 			name: "session"
 		};
-		var that = this;
-		var emailCookieProps = {
+		const emailCookieProps = {
 			url: PassZeroDomain,
 			name: "email"
 		};
@@ -266,13 +261,13 @@ class PassZero extends React.Component {
 				Console.log("email cookie:");
 				Console.log(cookie);
 				if (cookie) {
-					that.setState({ email: cookie.value });
+					this.setState({ email: cookie.value });
 				}
 			});
 			chrome.cookies.get(obj, (cookie) => {
 				if (cookie && cookie.value) {
 					Console.log("logged in!");
-					that.setState({ loggedIn: true });
+					this.setState({ loggedIn: true });
 				}
 			});
 		}

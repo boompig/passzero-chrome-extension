@@ -8,8 +8,8 @@ import SearchResultsLink from "./search_results_link.jsx";
  */
 class SearchResults extends React.Component {
 	render() {
-		var searchString = this.props.searchString;
-		var results = [];
+		const searchString = this.props.searchString;
+		const results = [];
 		for (let i = 0; i < this.props.entries.length; i++) {
 			let entry = this.props.entries[i];
 			if (entry.account.toLowerCase().indexOf(searchString) >= 0) {

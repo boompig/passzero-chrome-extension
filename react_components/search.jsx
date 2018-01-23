@@ -19,7 +19,7 @@ class Search extends React.Component {
 	}
 
 	render() {
-		var searchString = this.state.searchString.trim().toLowerCase();
+		const searchString = this.state.searchString.trim().toLowerCase();
 		return (
 			<div id="search-container">
 				<form id="search-form" role="search">
