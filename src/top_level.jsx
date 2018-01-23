@@ -9,9 +9,23 @@ import DeleteView from "./delete_view.jsx";
 
 const PassZeroDomain = "https://passzero.herokuapp.com";
 
-let Console = console;
+const Console = console;
 
+// extension development types & polyfill
 declare var chrome: any;
+declare var cookies: any;
+
+let Cookies = {};
+if(typeof(chrome) !== "undefined") {
+	Console.log("This is a chrome extension. Use the Chrome cookies API");
+	Cookies = chrome.cookies;
+} else if(typeof(chrome) === "undefined" && typeof(cookies) !== "undefined") {
+	// firefox extension
+	Cookies = cookies;
+} else {
+	// something weird
+	Console.error("No access to cookies interface");
+}
 
 type T_LoginForm = {
 	email: string,
@@ -86,15 +100,15 @@ class PassZero extends React.Component<IProps, IState> {
 	_onLogin() {
 		// save state email in a cookie
 		Console.log("Setting email cookie: " + this.state.email);
-		chrome.cookies.set({
+		Cookies.set({
 			url: PassZeroDomain,
 			name: "email",
 			value: this.state.email
 		}, (cookie) => {
 			Console.log("Email cookie is set:");
 			Console.log(cookie);
+			this._getEntries();
 		});
-		this._getEntries();
 	}
 
 	/**
@@ -113,6 +127,8 @@ class PassZero extends React.Component<IProps, IState> {
 			})
 			.fail((response, textStatus, errorText) => {
 				Console.log("Failed to get entries");
+				Console.error("textStatus: " + textStatus);
+				Console.error("errorText: " + errorText);
 				if (errorText === "UNAUTHORIZED") {
 					this.setState({
 						loggedIn: false
@@ -138,7 +154,7 @@ class PassZero extends React.Component<IProps, IState> {
 			url: PassZeroDomain,
 			name: "session"
 		};
-		chrome.cookies.remove(obj, (details) => {
+		Cookies.remove(obj, (details) => {
 			Console.log("remove session cookie response:");
 			Console.log(details);
 		});
@@ -160,6 +176,7 @@ class PassZero extends React.Component<IProps, IState> {
 					loggedIn: true
 				});
 			}).fail((response) => {
+				Console.error("Failed to log in");
 				let errorMsg = "";
 				if (response.status === 0) {
 					errorMsg = "This is meant to be run in an extension, not as a standalone site";
@@ -205,7 +222,7 @@ class PassZero extends React.Component<IProps, IState> {
 	}
 
 	handleEmailChange(event: SyntheticEvent<HTMLElement>) {
-		if(event instanceof window.HTMLInputElement) {
+		if(event.target instanceof window.HTMLInputElement) {
 			this.setState({
 				email: event.target.value
 			});
@@ -289,23 +306,22 @@ class PassZero extends React.Component<IProps, IState> {
 			url: PassZeroDomain,
 			name: "email"
 		};
-		if(typeof(chrome) === "undefined") {
-			Console.error("No access to Chrome extension API");
-		} else {
-			chrome.cookies.get(emailCookieProps, (cookie) => {
-				Console.log("email cookie:");
-				Console.log(cookie);
-				if (cookie) {
-					this.setState({ email: cookie.value });
-				}
-			});
-			chrome.cookies.get(obj, (cookie) => {
-				if (cookie && cookie.value) {
-					Console.log("logged in!");
-					this.setState({ loggedIn: true });
-				}
-			});
-		}
+		Cookies.get(emailCookieProps, (cookie) => {
+			Console.log("email cookie:");
+			Console.log(cookie);
+			if (cookie) {
+				this.setState({ email: cookie.value });
+			} else {
+				// get rid of null cookie
+				Cookies.remove(emailCookieProps);
+			}
+		});
+		Cookies.get(obj, (cookie) => {
+			if (cookie && cookie.value) {
+				Console.log("logged in!");
+				this.setState({ loggedIn: true });
+			}
+		});
 	}
 }
 

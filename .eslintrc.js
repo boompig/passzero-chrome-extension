@@ -45,6 +45,8 @@ module.exports = {
 		// need this because don't have a type file
 		"chrome": true,
 		// because of flow
-		"SyntheticEvent": true
+		"SyntheticEvent": true,
+		// this is what Firefox uses for its WebExtension cookies API
+		"cookies": true
 	}
 };

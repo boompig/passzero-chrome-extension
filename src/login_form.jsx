@@ -2,6 +2,8 @@
 
 import * as React from "react";
 
+let Console = console;
+
 type ILoginFormProps = {
 	email: string,
 	onLoginSubmit: Function,
@@ -42,8 +44,10 @@ class LoginForm extends React.Component<ILoginFormProps, ILoginFormState> {
 	}
 
 	handlePasswordChange(event: SyntheticEvent<HTMLElement>) {
-		if(event instanceof window.HTMLInputElement) {
+		if(event.target instanceof window.HTMLInputElement) {
 			this.setState({ "password": event.target.value });
+		} else {
+			Console.error("Failed to update password");
 		}
 	}
 
