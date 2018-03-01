@@ -3,11 +3,12 @@
 import React from "react";
 
 import SearchResultsLink from "./search_results_link.jsx";
+import type { T_DecEntry, T_EncEntry } from "./types";
 
 type ISearchResultsProps = {
 	searchString: string,
-	entries: any,
-	onEntryClick: Function
+	entries: Array<(T_DecEntry | T_EncEntry)>,
+	onEntryClick: (entryId: number, index: number) => void
 };
 
 /**
@@ -23,6 +24,7 @@ class SearchResults extends React.Component<ISearchResultsProps, {}> {
 				results.push(
 					<SearchResultsLink key={ entry.id }
 						entry={ entry }
+						index={ i }
 						onEntryClick={ this.props.onEntryClick } />
 				);
 			}

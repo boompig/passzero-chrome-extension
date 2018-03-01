@@ -1,8 +1,22 @@
 // @flow
 
+type T_postOptions = {
+	relativeUrl: string,
+	token?: string,
+	data?: any,
+};
+
 class pzAPI {
 	token: ?string;
 	baseUrl: string;
+
+	login: Function;
+	logout: Function;
+	getEntries: Function;
+	_getEntriesWithToken: Function;
+	createEntry: Function;
+	deleteEntry: Function;
+	getEntry: Function;
 
 	constructor(baseUrl: ?string) {
 		this.token = null;
@@ -11,6 +25,14 @@ class pzAPI {
 		} else {
 			this.baseUrl = "https://passzero.herokuapp.com";
 		}
+
+		this.login = this.login.bind(this);
+		this.logout = this.logout.bind(this);
+		this.getEntries = this.getEntries.bind(this);
+		this._getEntriesWithToken = this._getEntriesWithToken.bind(this);
+		this.getEntry = this.getEntry.bind(this);
+		this.createEntry = this.createEntry.bind(this);
+		this.deleteEntry = this.deleteEntry.bind(this);
 	}
 
 	getHeaderWithToken(token: ?string) {
@@ -23,22 +45,26 @@ class pzAPI {
 		return headers;
 	}
 
-	getJSON(relativeUrl: string, token: ?string): Promise<any> {
+	/**
+	 * Return the parsed response body
+	 */
+	getJSON(relativeUrl: string, token?: string): Promise<any> {
 		// TODO ignores data for now
 		if(!relativeUrl) {
-			return new Promise((resolve, reject) => {
-				reject("relativeUrl must be specified");
-			});
+			return this._rejectNoParam("relativeUrl");
 		}
+		const url = this.baseUrl + relativeUrl;
 		const headers = this.getHeaderWithToken(token);
-		return window.fetch({
-			url: this.baseUrl + relativeUrl,
+		return window.fetch(url, {
 			method: "GET",
 			headers: headers,
-		});
+		}).then(response => response.json());
 	}
 
-	postJSON(relativeUrl: (string | any), data: ?any, token: ?string): Promise<any> {
+	/**
+	 * Return the parsed response body
+	 */
+	postJSON(relativeUrl: (string | T_postOptions), data: ?any, token: ?string): Promise<any> {
 		data = data || {};
 		if(typeof(relativeUrl) !== "string") {
 			let options = relativeUrl;
@@ -47,20 +73,21 @@ class pzAPI {
 			token = options.token || null;
 		}
 		if(!relativeUrl) {
-			return new Promise((resolve, reject) => {
-				reject("relativeUrl must be specified");
-			});
+			return this._rejectNoParam("relativeUrl");
 		}
+		const url = this.baseUrl + relativeUrl;
 		const headers = this.getHeaderWithToken(token);
-		return window.fetch({
-			url: this.baseUrl + relativeUrl,
+		return window.fetch(url, {
 			method: "POST",
 			headers: headers,
-			data: JSON.stringify(data)
-		});
+			body: JSON.stringify(data)
+		}).then(response => response.json());
 	}
 
-	deleteJSON(relativeUrl: (string | any), data: ?any, token: ?string): Promise<any> {
+	/**
+	 * Return the parsed response body
+	 */
+	deleteJSON(relativeUrl: (string | T_postOptions), data: ?any, token: ?string): Promise<any> {
 		data = data || {};
 		if(typeof(relativeUrl) !== "string") {
 			let options = relativeUrl;
@@ -69,33 +96,51 @@ class pzAPI {
 			token = options.token || null;
 		}
 		if(!relativeUrl) {
-			return new Promise((resolve, reject) => {
-				reject("relativeUrl must be specified");
-			});
+			return this._rejectNoParam("relativeUrl");
 		}
 		const headers = this.getHeaderWithToken(token);
-		return window.fetch({
-			url: this.baseUrl + relativeUrl,
+		const url = this.baseUrl + relativeUrl;
+		return window.fetch(url, {
 			method: "DELETE",
 			headers: headers,
-			data: JSON.stringify(data)
-		});
+			body: JSON.stringify(data)
+		}).then(response => response.json());
 	}
 
 	_getEntriesWithToken(): Promise<any> {
-		return this.getJSON("/api/v3/entries", this.token)
-			.then((response) => {
-				return JSON.parse(response.body);
-			});
+		if(!this.token) {
+			return this._rejectNoToken();
+		}
+		return this.getJSON("/api/v3/entries", this.token);
 	}
 
+	_rejectNoToken(): Promise<any> {
+		return new Promise((resolve, reject) => {
+			reject({
+				"errorText": "We don't have a token yet",
+				// to be in line with previous code
+				"statusMessage": "NO_TOKEN"
+			});
+		});
+	}
+
+	_rejectNoParam(param: string): Promise<any> {
+		return new Promise((resolve, reject) => {
+			reject({
+				"errorText": "Parameter " + param + " is required",
+				"statusMessage": "MISSING_REQUIRED_PARAM"
+			});
+		});
+	}
+
+	/**
+	 * Return array of encrypted entries on success
+	 */
 	getEntries(): Promise<any> {
 		if(this.token) {
 			return this._getEntriesWithToken();
 		} else {
-			return new Promise((resolve, reject) => {
-				reject("We don't have a token yet");
-			});
+			return this._rejectNoToken();
 		}
 	}
 
@@ -105,56 +150,67 @@ class pzAPI {
 	login(email: string, password: string): Promise<any> {
 		const data = { "email": email, "password": password };
 		return this.postJSON("/api/v3/token", data)
-			.then((response) => {
-				const responseData = JSON.parse(response.body);
+			.then((responseData) => {
 				this.token = responseData.token;
 				return this.token;
 			});
 	}
 
 	logout(): Promise<any> {
-		return this.deleteJSON({ url: "/api/v3/token", token: this.token })
+		if(!this.token) {
+			return this._rejectNoToken();
+		}
+		const options = { relativeUrl: "/api/v3/token", token: this.token };
+		return this.deleteJSON(options)
 			.then(() => {
 				this.token = null;
 			});
 	}
 
 	deleteEntry(entryId: number): Promise<any> {
-		return this.deleteJSON({
+		if(!this.token) {
+			return this._rejectNoToken();
+		}
+		const options = {
 			relativeUrl: "/api/v3/entries/" + entryId,
 			token: this.token
-		});
+		};
+		return this.deleteJSON(options);
 	}
 
 	getEntry(entryId: number, password: string): Promise<any> {
 		if(!entryId) {
-			return new Promise((resolve, reject) => { 
-				reject("Error: entryId is required");
-			});
+			return this._rejectNoParam("entryId");
 		}
-		return this.postJSON({
+		if(!this.token) {
+			return this._rejectNoToken();
+		}
+		const options = {
 			relativeUrl: "/api/v3/entries/" + entryId,
 			data: { "password": password },
 			token: this.token
-		})
-			.then((response) => {
-				return JSON.parse(response.body);
-			});
+		};
+		return this.postJSON(options);
 	}
 
+	/**
+	 * Return the entry ID on success
+	 */
 	createEntry(entry: any, password: string): Promise<any> {
 		if(!entry) {
-			return new Promise((resolve, reject) => {
-				reject("Error: entry is required");
-			});
+			return this._rejectNoParam("entry");
 		}
-		return this.postJSON({
+		if(!this.token) {
+			return this._rejectNoToken();
+		}
+		const options = {
 			relativeUrl: "/api/v3/entries",
 			data: { "password": password, "entry": entry },
 			token: this.token
-		})
+		};
+		return this.postJSON(options)
 			.then((response) => {
-				return JSON.parse(response.body).entry_id;
+				return response.entry_id;
 			});
 	}
 }

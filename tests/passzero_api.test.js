@@ -8,24 +8,49 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 const DEFAULT_EMAIL = "a@a.com";
 const DEFAULT_PASSWORD = "a";
-const DEFAULT_BASE_URL = "https://localhost:5050";
+const DEFAULT_BASE_URL = "http://localhost:5050";
 
-function fetchDispatcher(options) {
+//const fetch = window.fetch;
+//function myFetch(url, options) {
+	//options["mode"] = "same-origin";
+	//options["cache"] = "no-cache";
+	//options["credentials"] = "omit";
+	//return fetch(url, options);
+//}
+
+//window.fetch = myFetch;
+
+function fetchDispatcher(url, options) {
+	options.url = url;
 	// allow my self-signed cert yet
 	options.insecure = true;
 	options.rejectUnauthorized = false;
 
 	// mimic how fetch API sends back the full response
-	options.resolveWithFullResponse = true;
-
-	// fill in the right fields for data
-	if(options.data && options.headers["content-type"] === "application/json") {
-		const dataStr = options.data;
-		delete(options.data);
-		options.body = dataStr;
+	options.resolveWithFullResponse = false;
+	if(options.headers["content-type"] === "application/json") {
+		//options.json = true;
 	}
-	return request(options);
+
+	return request(options)
+		.then((response) => {
+			return { 
+				json: () => {
+					if(typeof(response) === "string") {
+						return JSON.parse(response);
+					} else {
+						return response;
+					}
+				}
+			};
+		}).catch((response) => {
+			return new Promise((resolve, reject) => {
+				response.status = response.statusCode;
+				reject(response);
+			});
+		});
 }
+
 
 // fill in window.fetch
 if(typeof(window) === "undefined") {
@@ -39,7 +64,7 @@ describe("login", () => {
 		expect.assertions(1);
 		return api.login(DEFAULT_EMAIL, "bad password")
 			.catch((response) => {
-				expect(response.statusCode).toBe(401);
+				expect(response.status).toBe(401);
 			});
 	});
 
@@ -55,13 +80,13 @@ describe("login", () => {
 });
 
 describe("getEntries", () => {
-	it("Should fail gracefully if there is no token", () => {
+	it("should fail gracefully if there is no token", () => {
 		expect.assertions(1);
 		const api = new pzAPI(DEFAULT_BASE_URL);
 		// NOTE: should create this account
 		return api.getEntries()
 			.catch((err) => {
-				expect(true).toBe(true);
+				expect(err.statusMessage).toBe("NO_TOKEN");
 			});
 	});
 
@@ -79,7 +104,7 @@ describe("getEntries", () => {
 });
 
 describe("getEntry", () => {
-	it("Should successfully decrypt an existing entry", () => {
+	it("should successfully decrypt an existing entry", () => {
 		expect.assertions(3);
 		const api = new pzAPI(DEFAULT_BASE_URL);
 		return api.login(DEFAULT_EMAIL, DEFAULT_PASSWORD)
@@ -98,7 +123,7 @@ describe("getEntry", () => {
 });
 
 describe("createEntry and deleteEntry", () => {
-	it("Should create a new entry which is then deleted", () => {
+	it("should create a new entry which is then deleted", () => {
 		expect.assertions(5);
 		const api = new pzAPI(DEFAULT_BASE_URL);
 		// fill these variables in as we go
@@ -130,8 +155,7 @@ describe("createEntry and deleteEntry", () => {
 				// just make sure deletion succeeds
 				return api.getEntry(newEntryId, DEFAULT_PASSWORD);
 			}).catch((response) => {
-				//console.log(response);
-				expect(response.statusCode).toBe(400);
+				expect(response.status).toBe(400);
 				return api.getEntries();
 			}).then((entries) => {
 				expect(entries.length).toBe(numEntries);

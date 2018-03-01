@@ -16,7 +16,6 @@
         "activeTab",
         "storage",
         "cookies",
-        "*://passzero.herokuapp.com/",
-        "*://passzero.herokuapp.com/*"
+        "https://passzero.herokuapp.com/",
     ]
 }

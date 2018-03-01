@@ -1,11 +1,11 @@
 // @flow
 
 import * as React from "react";
-//import PassZeroAPI from "./passzero_api";
 import { pzAPI } from "./pz_api";
 import LoginForm from "./login_form";
 import Search from "./search";
 import Entry from "./entry";
+import type { T_LoginForm, T_EncEntry, T_DecEntry } from "./types";
 import DeleteView from "./delete_view";
 
 const PassZeroDomain = "https://passzero.herokuapp.com";
@@ -45,12 +45,7 @@ function setCookiesAPI() {
 	}
 }
 
-type T_LoginForm = {
-	email: string,
-	password: string
-};
-
-type T_Entry = any;
+type T_Entry = T_DecEntry | T_EncEntry;
 
 type IProps = {};
 
@@ -59,6 +54,7 @@ type IState = {
 	selectedEntry: ?number,
 	entries: Array<T_Entry>,
 	email: string,
+	password: string,
 	deleteFlag: boolean,
 	loginErrorMsg: ?string
 };
@@ -72,14 +68,15 @@ class PassZero extends React.Component<IProps, IState> {
 	_getEntries: Function;
 	_onLogout: Function;
 
-	handleLoginSubmit: Function;
+	handleLoginSubmit: (form: T_LoginForm) => void;
 	handleEntryBack: Function;
-	handleEntryClick: Function;
-	handleEmailChange: Function;
+	handleEntryClick: (entryId: number, index: number) => void;
+	handleEmailChange: (event: SyntheticEvent<HTMLElement>) => void;
 	handleDeleteBack: Function;
 	handleDeleteClick: Function;
 	handleLock: Function;
 	handleConfirmDelete: Function;
+	handleDecryptEntry: (decEntry: T_DecEntry, index: number) => void;
 
 	getEntryById: Function;
 
@@ -92,12 +89,14 @@ class PassZero extends React.Component<IProps, IState> {
 			selectedEntry: null,
 			entries: [],
 			email: "",
+			password: "",
 			deleteFlag: false,
 			loginErrorMsg: null
 		};
 
 		// no need to keep this in state since it doesn't affect the GUI
-		this.api = new pzAPI();
+		// TODO only for testing
+		this.api = new pzAPI("http://localhost:5050");
 
 		this._onLogin = this._onLogin.bind(this);
 		this._getEntries = this._getEntries.bind(this);
@@ -111,6 +110,7 @@ class PassZero extends React.Component<IProps, IState> {
 		this.handleDeleteClick = this.handleDeleteClick.bind(this);
 		this.handleLock = this.handleLock.bind(this);
 		this.handleConfirmDelete = this.handleConfirmDelete.bind(this);
+		this.handleDecryptEntry = this.handleDecryptEntry.bind(this);
 
 		this.getEntryById = this.getEntryById.bind(this);
 	}
@@ -143,17 +143,20 @@ class PassZero extends React.Component<IProps, IState> {
 		this.api.getEntries()
 			.then((entries) => {
 				Console.log("Loaded entries");
-				Console.log(entries);
+				Console.log("# entries = " + entries.length);
 				this.setState({
 					entries: entries
 				});
 			})
 			.catch((response) => {
 				Console.log("Failed to get entries");
-				if (response.statusMessage === "UNAUTHORIZED") {
+				if (response.statusMessage === "UNAUTHORIZED" ||
+					response.statusMessage === "NO_TOKEN") {
 					this.setState({
 						loggedIn: false
 					});
+				} else {
+					Console.error(response);
 				}
 			});
 	}
@@ -194,7 +197,9 @@ class PassZero extends React.Component<IProps, IState> {
 			.then(() => {
 				Console.log("Logged in!");
 				this.setState({
-					loggedIn: true
+					loggedIn: true,
+					// save the password on successful login
+					password: form.password
 				});
 			}).catch((response) => {
 				Console.error("Failed to log in");
@@ -205,19 +210,45 @@ class PassZero extends React.Component<IProps, IState> {
 					errorMsg = "The username or password is incorrect";
 				} else {
 					errorMsg = "Failed to log in";
+					Console.error(response);
+					Console.log(arguments);
 				}
-				Console.log(arguments);
 				this.setState({
 					"loginErrorMsg": errorMsg
 				});
 			});
 	}
 
-	handleEntryClick(entryID: number) {
+	/**
+	 * Patch in the decrypted entry into entries
+	 */
+	handleDecryptEntry(decEntry: T_DecEntry, index: number) {
+		const entries = this.state.entries;
+		const encEntry = entries[index];
+
+		// copy in properties from encEntry to decEntry
+		for(const k in encEntry) {
+			if(!(k in decEntry) && k !== "is_encrypted") {
+				Console.log(`Setting property ${k} in decEntry to ${encEntry[k]}`);
+				decEntry[k] = encEntry[k];
+			}
+		}
+
+		// replace encEntry with decEntry
+		entries[index] = decEntry;
+
+		// force UI update
+		this.setState({ entries: entries });
+	}
+
+	handleEntryClick(entryID: number, index: number) {
 		Console.log("Selected entry: " + entryID);
 		this.setState({
 			selectedEntry: entryID
 		});
+		// and initiate entry decryption
+		this.api.getEntry(entryID, this.state.password)
+			.then(entry => this.handleDecryptEntry(entry, index));
 	}
 
 	getEntryById(entryID: number) {

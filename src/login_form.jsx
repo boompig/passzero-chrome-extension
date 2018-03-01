@@ -1,13 +1,14 @@
 // @flow
 
 import * as React from "react";
+import type { T_LoginForm } from "./types";
 
 let Console = console;
 
 type ILoginFormProps = {
 	email: string,
-	onLoginSubmit: Function,
-	onEmailChange: Function,
+	onLoginSubmit: (form: T_LoginForm) => void,
+	onEmailChange: (event: SyntheticEvent<HTMLElement>) => void,
 	errorMsg: ?string
 };
 
