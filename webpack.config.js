@@ -10,6 +10,9 @@ var config = {
 		path: BUILD_DIR,
 		filename: "passzero_extension.js"
 	},
+	resolve: {
+		extensions: [".jsx", ".js"]
+	},
 	module: {
 		loaders: [
 			{

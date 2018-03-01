@@ -4,7 +4,7 @@
   "description": "Chrome extension for PassZero password manager",
   "main": "src/passzero_react.jsx",
   "scripts": {
-    "test": "yarn run flow check",
+    "test": "yarn run flow check && yarn jest",
     "jest": "jest",
     "lint": "eslint ./src/*",
     "build": "webpack"
