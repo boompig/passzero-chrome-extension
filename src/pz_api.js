@@ -1,7 +1,6 @@
 // @flow
 
 type T_postOptions = {
-	relativeUrl: string,
 	token?: string,
 	data?: any,
 };
@@ -64,14 +63,10 @@ class pzAPI {
 	/**
 	 * Return the parsed response body
 	 */
-	postJSON(relativeUrl: (string | T_postOptions), data: ?any, token: ?string): Promise<any> {
-		data = data || {};
-		if(typeof(relativeUrl) !== "string") {
-			let options = relativeUrl;
-			relativeUrl = options.relativeUrl;
-			data = options.data || {};
-			token = options.token || null;
-		}
+	postJSON(relativeUrl: string, options?: T_postOptions): Promise<any> {
+		options = options || {};
+		let data = options.data || {};
+		let token = options.token || null;
 		if(!relativeUrl) {
 			return this._rejectNoParam("relativeUrl");
 		}
@@ -87,14 +82,10 @@ class pzAPI {
 	/**
 	 * Return the parsed response body
 	 */
-	deleteJSON(relativeUrl: (string | T_postOptions), data: ?any, token: ?string): Promise<any> {
-		data = data || {};
-		if(typeof(relativeUrl) !== "string") {
-			let options = relativeUrl;
-			relativeUrl = options.relativeUrl;
-			data = options.data || {};
-			token = options.token || null;
-		}
+	deleteJSON(relativeUrl: string, options?: T_postOptions): Promise<any> {
+		options = options || {};
+		let data = options.data || {};
+		let token = options.token || null;
 		if(!relativeUrl) {
 			return this._rejectNoParam("relativeUrl");
 		}
@@ -149,7 +140,7 @@ class pzAPI {
 	 */
 	login(email: string, password: string): Promise<any> {
 		const data = { "email": email, "password": password };
-		return this.postJSON("/api/v3/token", data)
+		return this.postJSON("/api/v3/token", { "data": data })
 			.then((responseData) => {
 				this.token = responseData.token;
 				return this.token;
@@ -160,8 +151,8 @@ class pzAPI {
 		if(!this.token) {
 			return this._rejectNoToken();
 		}
-		const options = { relativeUrl: "/api/v3/token", token: this.token };
-		return this.deleteJSON(options)
+		const options = { "token": this.token };
+		return this.deleteJSON("/api/v3/token", options)
 			.then(() => {
 				this.token = null;
 			});
@@ -172,10 +163,9 @@ class pzAPI {
 			return this._rejectNoToken();
 		}
 		const options = {
-			relativeUrl: "/api/v3/entries/" + entryId,
 			token: this.token
 		};
-		return this.deleteJSON(options);
+		return this.deleteJSON("/api/v3/entries/" + entryId, options);
 	}
 
 	getEntry(entryId: number, password: string): Promise<any> {
@@ -186,11 +176,10 @@ class pzAPI {
 			return this._rejectNoToken();
 		}
 		const options = {
-			relativeUrl: "/api/v3/entries/" + entryId,
 			data: { "password": password },
 			token: this.token
 		};
-		return this.postJSON(options);
+		return this.postJSON("/api/v3/entries/" + entryId, options);
 	}
 
 	/**
@@ -204,11 +193,10 @@ class pzAPI {
 			return this._rejectNoToken();
 		}
 		const options = {
-			relativeUrl: "/api/v3/entries",
 			data: { "password": password, "entry": entry },
 			token: this.token
 		};
-		return this.postJSON(options)
+		return this.postJSON("/api/v3/entries", options)
 			.then((response) => {
 				return response.entry_id;
 			});
