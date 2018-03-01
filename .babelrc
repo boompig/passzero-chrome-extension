@@ -1,11 +1,14 @@
 {
-	"presets": ["react", "flow"],
+	"presets": ["env", "react", "flow"],
 	"env": {
 		"production": {
 			"plugins": ["transform-react-remove-prop-types"]
 		},
 		"development": {
-			"plugins": ["transform-react-remove-prop-types"]
+			"plugins": [
+				"transform-react-remove-prop-types",
+				"transform-class-properties"
+			]
 		}
 	}
 }
