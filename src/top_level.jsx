@@ -1,11 +1,12 @@
 // @flow
 
 import * as React from "react";
-import PassZeroAPI from "./passzero_api.js";
-import LoginForm from "./login_form.jsx";
-import Search from "./search.jsx";
-import Entry from "./entry.jsx";
-import DeleteView from "./delete_view.jsx";
+//import PassZeroAPI from "./passzero_api";
+import { pzAPI } from "./pz_api";
+import LoginForm from "./login_form";
+import Search from "./search";
+import Entry from "./entry";
+import DeleteView from "./delete_view";
 
 const PassZeroDomain = "https://passzero.herokuapp.com";
 
@@ -13,18 +14,35 @@ const Console = console;
 
 // extension development types & polyfill
 declare var chrome: any;
-declare var cookies: any;
+declare var browser: any;
 
-let Cookies = {};
-if(typeof(chrome) !== "undefined") {
-	Console.log("This is a chrome extension. Use the Chrome cookies API");
-	Cookies = chrome.cookies;
-} else if(typeof(chrome) === "undefined" && typeof(cookies) !== "undefined") {
-	// firefox extension
-	Cookies = cookies;
-} else {
-	// something weird
-	Console.error("No access to cookies interface");
+var Cookies = {};
+
+function setCookiesAPI() {
+	if(typeof(browser) !== "undefined") {
+		return browser.runtime.getBrowserInfo()
+			.then((info) => {
+				if(info.vendor === "Mozilla") {
+					Console.log("This is a Firefox extension. Using the Firefox cookies API.");
+					Cookies = browser.cookies;
+				} else {
+					Console.error("Unknown browser vendor: " + info.vendor);
+					Console.log(info);
+				}
+			});
+	} else if(typeof(chrome) !== "undefined") {
+		return new Promise((resolve) => {
+			Console.log("This is a Chrome extension. Using the Chrome cookies API.");
+			Cookies = chrome.cookies;
+			resolve();
+		});
+	} else {
+		return new Promise((resolve, reject) => {
+			// something weird
+			Console.error("No access to cookies interface");
+			reject();
+		});
+	}
 }
 
 type T_LoginForm = {
@@ -65,6 +83,8 @@ class PassZero extends React.Component<IProps, IState> {
 
 	getEntryById: Function;
 
+	api: pzAPI;
+
 	constructor() {
 		super();
 		this.state = {
@@ -75,6 +95,9 @@ class PassZero extends React.Component<IProps, IState> {
 			deleteFlag: false,
 			loginErrorMsg: null
 		};
+
+		// no need to keep this in state since it doesn't affect the GUI
+		this.api = new pzAPI();
 
 		this._onLogin = this._onLogin.bind(this);
 		this._getEntries = this._getEntries.bind(this);
@@ -117,7 +140,7 @@ class PassZero extends React.Component<IProps, IState> {
 	_getEntries() {
 		// get entries
 		Console.log("Loading entries...");
-		PassZeroAPI.getEntries()
+		this.api.getEntries()
 			.then((entries) => {
 				Console.log("Loaded entries");
 				Console.log(entries);
@@ -125,11 +148,9 @@ class PassZero extends React.Component<IProps, IState> {
 					entries: entries
 				});
 			})
-			.fail((response, textStatus, errorText) => {
+			.catch((response) => {
 				Console.log("Failed to get entries");
-				Console.error("textStatus: " + textStatus);
-				Console.error("errorText: " + errorText);
-				if (errorText === "UNAUTHORIZED") {
+				if (response.statusMessage === "UNAUTHORIZED") {
 					this.setState({
 						loggedIn: false
 					});
@@ -169,18 +190,18 @@ class PassZero extends React.Component<IProps, IState> {
 	}
 
 	handleLoginSubmit(form: T_LoginForm) {
-		PassZeroAPI.validateLogin(this.state.email, form.password)
-			.done(() => {
+		this.api.login(this.state.email, form.password)
+			.then(() => {
 				Console.log("Logged in!");
 				this.setState({
 					loggedIn: true
 				});
-			}).fail((response) => {
+			}).catch((response) => {
 				Console.error("Failed to log in");
 				let errorMsg = "";
-				if (response.status === 0) {
+				if (response.statusCode === 0) {
 					errorMsg = "This is meant to be run in an extension, not as a standalone site";
-				} else if (response.status === 401) {
+				} else if (response.statusCode === 401) {
 					errorMsg = "The username or password is incorrect";
 				} else {
 					errorMsg = "Failed to log in";
@@ -216,7 +237,7 @@ class PassZero extends React.Component<IProps, IState> {
 
 	handleLock() {
 		// also hit the logout API
-		PassZeroAPI.logout().then(() => {
+		this.api.logout().then(() => {
 			this.setState({ loggedIn: false });
 		});
 	}
@@ -245,7 +266,7 @@ class PassZero extends React.Component<IProps, IState> {
 		const selectedEntry = this.state.selectedEntry;
 		if(selectedEntry !== null && selectedEntry !== undefined) {
 			Console.log("Deleting entry with ID " + selectedEntry);
-			PassZeroAPI.deleteEntry(selectedEntry)
+			this.api.deleteEntry(selectedEntry)
 				.then((response) => {
 					Console.log("Deleted");
 					Console.log(response);
@@ -297,30 +318,36 @@ class PassZero extends React.Component<IProps, IState> {
 		);
 	}
 
+	/**
+	 * Called after the constructor
+	 */
 	componentWillMount() {
-		const obj = {
-			url: PassZeroDomain,
-			name: "session"
-		};
-		const emailCookieProps = {
-			url: PassZeroDomain,
-			name: "email"
-		};
-		Cookies.get(emailCookieProps, (cookie) => {
-			Console.log("email cookie:");
-			Console.log(cookie);
-			if (cookie) {
-				this.setState({ email: cookie.value });
-			} else {
-				// get rid of null cookie
-				Cookies.remove(emailCookieProps);
-			}
-		});
-		Cookies.get(obj, (cookie) => {
-			if (cookie && cookie.value) {
-				Console.log("logged in!");
-				this.setState({ loggedIn: true });
-			}
+		setCookiesAPI().then(() => {
+			// Cookies API is set asynchronously
+			const obj = {
+				url: PassZeroDomain,
+				name: "session"
+			};
+			const emailCookieProps = {
+				url: PassZeroDomain,
+				name: "email"
+			};
+			Cookies.get(emailCookieProps, (cookie) => {
+				Console.log("email cookie:");
+				Console.log(cookie);
+				if (cookie) {
+					this.setState({ email: cookie.value });
+				} else {
+					// get rid of null cookie
+					Cookies.remove(emailCookieProps);
+				}
+			});
+			Cookies.get(obj, (cookie) => {
+				if (cookie && cookie.value) {
+					Console.log("logged in (due to session cookie)!");
+					this.setState({ loggedIn: true });
+				}
+			});
 		});
 	}
 }
