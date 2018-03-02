@@ -39,8 +39,12 @@ class Search extends React.Component<ISearchProps, ISearchState> {
 		return (
 			<div id="search-container">
 				<form id="search-form" role="search">
-					<input className="form-control" type="search" placeholder="search"
-						onChange={ this.handleChange } tabIndex="1" />
+					<input className="form-control"
+						type="search"
+						placeholder="search"
+						name="search"
+						onChange={ this.handleChange }
+						tabIndex="1" />
 				</form>
 				<SearchResults
 					entries={ this.props.entries }

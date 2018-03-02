@@ -1,11 +1,14 @@
+/**
+ * Login form only
+ */
 #login-form {
-    width: 350px;
     padding: 1em;
+    width: 350px;
 }
 
 #login-form .error {
-    font-size: 0.9em;
     color: #D63A0F;
+    font-size: 0.9em;
 }
 
 #login-form .form-control {
@@ -14,15 +17,24 @@
     margin-right: auto;
 }
 
+/********** end login form ************/
+
+/********** start search container *****/
+
 #search-container {
-    width: 350px;
     padding: 1em;
+    width: 350px;
 }
 
+/* on firefox for some reason the search input is too big */
 #search-container .form-control {
-    margin-bottom: 0.25em;
+    margin-bottom: 0.2em;
+	max-width: 96%;
 }
 
+/********** end search container ********/
+
+/********** start individual decrypted entry *******/
 #entry-container {
     width: 350px;
     padding: 1em;
@@ -40,12 +52,16 @@
     border-radius: 0.5em;
 }
 
+/********** end individual decrypted entry *********/
+
 #lock-btn-container {
     padding-left: 1em;
     padding-right: 1em;
     padding-bottom: 0.5em;
     margin: 0 auto;
 }
+
+/********* start deletion container ***************/
 
 #confirm-delete-container {
     width: 350px;
@@ -60,3 +76,5 @@
     float: right;
     color: #BF3406;
 }
+
+/********* end deletion container ***************/

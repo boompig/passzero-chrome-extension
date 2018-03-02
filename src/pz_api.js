@@ -57,7 +57,14 @@ class pzAPI {
 		return window.fetch(url, {
 			method: "GET",
 			headers: headers,
-		}).then(response => response.json());
+			credentials: "omit",
+		}).then((response) => {
+			if(response.ok) {
+				return response.json();
+			} else {
+				return Promise.reject(response);
+			}
+		});
 	}
 
 	/**
@@ -65,8 +72,8 @@ class pzAPI {
 	 */
 	postJSON(relativeUrl: string, options?: T_postOptions): Promise<any> {
 		options = options || {};
-		let data = options.data || {};
-		let token = options.token || null;
+		const data = options.data || {};
+		const token = options.token || null;
 		if(!relativeUrl) {
 			return this._rejectNoParam("relativeUrl");
 		}
@@ -75,8 +82,15 @@ class pzAPI {
 		return window.fetch(url, {
 			method: "POST",
 			headers: headers,
+			credentials: "omit",
 			body: JSON.stringify(data)
-		}).then(response => response.json());
+		}).then((response) => {
+			if(response.ok) {
+				return response.json();
+			} else {
+				return Promise.reject(response);
+			}
+		});
 	}
 
 	/**
@@ -84,8 +98,8 @@ class pzAPI {
 	 */
 	deleteJSON(relativeUrl: string, options?: T_postOptions): Promise<any> {
 		options = options || {};
-		let data = options.data || {};
-		let token = options.token || null;
+		const data = options.data || {};
+		const token = options.token || null;
 		if(!relativeUrl) {
 			return this._rejectNoParam("relativeUrl");
 		}
@@ -94,8 +108,15 @@ class pzAPI {
 		return window.fetch(url, {
 			method: "DELETE",
 			headers: headers,
+			credentials: "omit",
 			body: JSON.stringify(data)
-		}).then(response => response.json());
+		}).then(response => {
+			if(response.ok) {
+				return response.json();
+			} else {
+				return Promise.reject(response);
+			}
+		});
 	}
 
 	_getEntriesWithToken(): Promise<any> {

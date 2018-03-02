@@ -198,15 +198,16 @@ class PassZero extends React.Component<IProps, IState> {
 				Console.log("Logged in!");
 				this.setState({
 					loggedIn: true,
+					loginErrorMsg: null,
 					// save the password on successful login
-					password: form.password
+					password: form.password,
 				});
 			}).catch((response) => {
 				Console.error("Failed to log in");
 				let errorMsg = "";
-				if (response.statusCode === 0) {
+				if (response.status === 0) {
 					errorMsg = "This is meant to be run in an extension, not as a standalone site";
-				} else if (response.statusCode === 401) {
+				} else if (response.status === 401) {
 					errorMsg = "The username or password is incorrect";
 				} else {
 					errorMsg = "Failed to log in";
@@ -214,7 +215,7 @@ class PassZero extends React.Component<IProps, IState> {
 					Console.log(arguments);
 				}
 				this.setState({
-					"loginErrorMsg": errorMsg
+					loginErrorMsg: errorMsg
 				});
 			});
 	}

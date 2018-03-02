@@ -1,62 +1,13 @@
 import { pzAPI } from "../src/pz_api";
 
 // polyfill
-//require("whatwg-fetch");
-import request from "request-promise-native";
+require("whatwg-fetch");
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 const DEFAULT_EMAIL = "a@a.com";
 const DEFAULT_PASSWORD = "a";
 const DEFAULT_BASE_URL = "http://localhost:5050";
-
-//const fetch = window.fetch;
-//function myFetch(url, options) {
-	//options["mode"] = "same-origin";
-	//options["cache"] = "no-cache";
-	//options["credentials"] = "omit";
-	//return fetch(url, options);
-//}
-
-//window.fetch = myFetch;
-
-function fetchDispatcher(url, options) {
-	options.url = url;
-	// allow my self-signed cert yet
-	options.insecure = true;
-	options.rejectUnauthorized = false;
-
-	// mimic how fetch API sends back the full response
-	options.resolveWithFullResponse = false;
-	if(options.headers["content-type"] === "application/json") {
-		//options.json = true;
-	}
-
-	return request(options)
-		.then((response) => {
-			return { 
-				json: () => {
-					if(typeof(response) === "string") {
-						return JSON.parse(response);
-					} else {
-						return response;
-					}
-				}
-			};
-		}).catch((response) => {
-			return new Promise((resolve, reject) => {
-				response.status = response.statusCode;
-				reject(response);
-			});
-		});
-}
-
-
-// fill in window.fetch
-if(typeof(window) === "undefined") {
-	window = {};
-}
-window.fetch = fetchDispatcher;
 
 describe("login", () => {
 	it("should fail to login with bad credentials", () => {
