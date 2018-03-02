@@ -27,29 +27,33 @@ class Entry extends React.Component<IEntryProps, IEntryState> {
 	}
 
 	render() {
+		let entryContents;
 		if(this.props.entry.is_encrypted) {
-			return (<p>The entry is being decrypted...</p>);
+			entryContents = (<p>The entry is being decrypted...</p>);
 		} else {
-			return (
-				<div id="entry-container">
-					<span className="back-button glyphicon glyphicon-chevron-left" role="button"
-						onClick={ this.props.onBack }></span>
-					<div className="entry">
-						<div className="entry-account">
-							<span>{ this.props.entry.account }</span>
-							<span id="entry-delete-btn" role="button"
-								className="glyphicon glyphicon-remove"
-								onClick={ this.props.onDeleteClick }></span>
-						</div>
-						<div className="entry-username">{ this.props.entry.username }</div>
-						<div className="entry-password password-hidden"
-							onClick={ this.handlePasswordClick }>
-							{ this.props.entry.password }
-						</div>
+			entryContents = (
+				<div className="entry">
+					<div className="entry-account">
+						<span>{ this.props.entry.account }</span>
+						<span id="entry-delete-btn" role="button"
+							className="glyphicon glyphicon-remove"
+							onClick={ this.props.onDeleteClick }></span>
+					</div>
+					<div className="entry-username">{ this.props.entry.username }</div>
+					<div className="entry-password password-hidden"
+						onClick={ this.handlePasswordClick }>
+						{ this.props.entry.password }
 					</div>
 				</div>
 			);
 		}
+		return (
+			<div id="entry-container">
+				<span className="back-button glyphicon glyphicon-chevron-left" role="button"
+					onClick={ this.props.onBack }></span>
+				{ entryContents }
+			</div>
+		);
 	}
 }
 
