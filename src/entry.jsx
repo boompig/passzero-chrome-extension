@@ -3,13 +3,15 @@
 import * as React from "react";
 
 import Utils from "./passzero_utils.js";
+import type { T_DecEntry, T_EncEntry } from "./types";
 
 type IEntryState = {};
 
 type IEntryProps = {
 	onBack: Function,
 	onDeleteClick: Function,
-	entry: any
+	// the entry is being decrypted asynchronously
+	entry: (T_DecEntry | T_EncEntry),
 };
 
 class Entry extends React.Component<IEntryProps, IEntryState> {
@@ -25,10 +27,11 @@ class Entry extends React.Component<IEntryProps, IEntryState> {
 	}
 
 	render() {
-		return (
-			<div id="entry-container">
-				<span className="back-button glyphicon glyphicon-chevron-left" role="button"
-					onClick={ this.props.onBack }></span>
+		let entryContents;
+		if(this.props.entry.is_encrypted) {
+			entryContents = (<p>The entry is being decrypted...</p>);
+		} else {
+			entryContents = (
 				<div className="entry">
 					<div className="entry-account">
 						<span>{ this.props.entry.account }</span>
@@ -42,6 +45,13 @@ class Entry extends React.Component<IEntryProps, IEntryState> {
 						{ this.props.entry.password }
 					</div>
 				</div>
+			);
+		}
+		return (
+			<div id="entry-container">
+				<span className="back-button glyphicon glyphicon-chevron-left" role="button"
+					onClick={ this.props.onBack }></span>
+				{ entryContents }
 			</div>
 		);
 	}

@@ -1,62 +1,81 @@
+/**
+ * Login form only
+ */
 #login-form {
-    width: 350px;
-    padding: 1em;
+	padding: 1em;
+	width: 350px;
 }
 
 #login-form .error {
-    font-size: 0.9em;
-    color: #D63A0F;
+	color: #D63A0F;
+	font-size: 0.9em;
 }
 
 #login-form .form-control {
-    margin-bottom: 0.2em;
-    margin-left: auto;
-    margin-right: auto;
+	margin-bottom: 0.2em;
+	margin-left: auto;
+	margin-right: auto;
 }
+
+/********** end login form ************/
+
+/********** start search container *****/
 
 #search-container {
-    width: 350px;
-    padding: 1em;
+	padding-left: 1em;
+	padding-top: 1em;
+	width: 350px;
 }
 
+/* on firefox for some reason the search input is too big */
 #search-container .form-control {
-    margin-bottom: 0.25em;
+	margin-bottom: 0.2em;
+	max-width: 96%;
 }
 
+/********** end search container ********/
+
+/********** start individual decrypted entry *******/
 #entry-container {
-    width: 350px;
-    padding: 1em;
+	width: 350px;
+	padding: 1em;
 }
 
 #entry-container .entry-account {
-    font-weight: bold;
+	font-weight: bold;
 }
 
 #entry-container .entry-password.password-hidden {
-    padding: 0.5em;
-    color: #666;
-    background-color: #666;
-    border: 1px solid #555;
-    border-radius: 0.5em;
+	padding: 0.5em;
+	color: #666;
+	background-color: #666;
+	border: 1px solid #555;
+	border-radius: 0.5em;
 }
+
+/********** end individual decrypted entry *********/
 
 #lock-btn-container {
-    padding-left: 1em;
-    padding-right: 1em;
-    padding-bottom: 0.5em;
-    margin: 0 auto;
+	padding-left: 1em;
+	padding-right: 1em;
+	padding-bottom: 0.5em;
+	margin: 0 auto;
 }
 
+/********* start deletion container ***************/
+
 #confirm-delete-container {
-    width: 350px;
-    padding: 1em;
+	width: 350px;
+	padding: 1em;
 }
 
 #confirm-delete-container .btn {
-    width: 100%;
+	width: 100%;
 }
 
 #entry-delete-btn {
-    float: right;
-    color: #BF3406;
+	float: right;
+	color: #BF3406;
 }
+
+/********* end deletion container ***************/

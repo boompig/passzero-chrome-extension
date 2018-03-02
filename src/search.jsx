@@ -2,11 +2,12 @@
 
 import * as React from "react";
 
-import SearchResults from "./search_results.jsx";
+import SearchResults from "./search_results";
+import type { T_DecEntry, T_EncEntry } from "./types";
 
 type ISearchProps = {
-	onEntryClick: Function,
-	entries: Array<any>
+	onEntryClick: (entryId: number, index: number) => void,
+	entries: Array<(T_DecEntry | T_EncEntry)>
 };
 
 type ISearchState = {
@@ -38,10 +39,16 @@ class Search extends React.Component<ISearchProps, ISearchState> {
 		return (
 			<div id="search-container">
 				<form id="search-form" role="search">
-					<input className="form-control" type="search" placeholder="search"
-						onChange={ this.handleChange } tabIndex="1" />
+					<input className="form-control"
+						type="search"
+						placeholder="search"
+						name="search"
+						onChange={ this.handleChange }
+						tabIndex="1" />
 				</form>
-				<SearchResults entries={ this.props.entries } searchString={searchString}
+				<SearchResults
+					entries={ this.props.entries }
+					searchString={searchString}
 					onEntryClick={ this.props.onEntryClick } />
 			</div>
 		);

@@ -47,6 +47,6 @@ module.exports = {
 		// because of flow
 		"SyntheticEvent": true,
 		// this is what Firefox uses for its WebExtension cookies API
-		"cookies": true
+		"browser": true
 	}
 };

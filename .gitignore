@@ -21,3 +21,9 @@ dist/bootstrap
 
 # Mac garbage
 **/.DS_Store
+
+# private TODO list
+TODO.md
+
+# editor stuff
+.vimrc
