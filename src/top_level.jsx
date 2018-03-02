@@ -69,13 +69,13 @@ class PassZero extends React.Component<IProps, IState> {
 	_onLogout: Function;
 
 	handleLoginSubmit: (form: T_LoginForm) => void;
-	handleEntryBack: Function;
+	handleEntryBack: () => void;
 	handleEntryClick: (entryId: number, index: number) => void;
 	handleEmailChange: (event: SyntheticEvent<HTMLElement>) => void;
-	handleDeleteBack: Function;
-	handleDeleteClick: Function;
-	handleLock: Function;
-	handleConfirmDelete: Function;
+	handleDeleteBack: () => void;
+	handleDeleteClick: () => void;
+	handleLock: () => void;
+	handleConfirmDelete: () => void;
 	handleDecryptEntry: (decEntry: T_DecEntry, index: number) => void;
 
 	getEntryById: Function;

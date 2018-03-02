@@ -31,7 +31,7 @@ class SearchResults extends React.Component<ISearchResultsProps, {}> {
 		}
 
 		return (
-			<div className="searchResults">
+			<div className="search-results">
 				{results}
 			</div>
 		);
