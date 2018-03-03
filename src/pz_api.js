@@ -127,12 +127,10 @@ class pzAPI {
 	}
 
 	_rejectNoToken(): Promise<any> {
-		return new Promise((resolve, reject) => {
-			reject({
-				"errorText": "We don't have a token yet",
-				// to be in line with previous code
-				"statusMessage": "NO_TOKEN"
-			});
+		return Promise.reject({
+			"errorText": "We don't have a token yet",
+			// to be in line with previous code
+			"statusMessage": "NO_TOKEN"
 		});
 	}
 
