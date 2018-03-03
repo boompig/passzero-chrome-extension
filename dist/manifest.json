@@ -1,9 +1,9 @@
 {
     "manifest_version": 2,
     "name": "PassZero",
-    "version": "1.0.1",
+    "version": "1.0.2",
 
-    "description": "Chrome integration for PassZero",
+    "description": "Chrome and Firefox browser extension for PassZero",
 
     "author": "Daniel Kats",
 
@@ -16,8 +16,6 @@
         "activeTab",
         "storage",
         "cookies",
-        "https://passzero.herokuapp.com/",
-        "http://localhost:5050/",
-        "http://localhost:5050/*"
+        "https://passzero.herokuapp.com/"
     ]
 }

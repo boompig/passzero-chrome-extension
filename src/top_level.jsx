@@ -95,8 +95,7 @@ class PassZero extends React.Component<IProps, IState> {
 		};
 
 		// no need to keep this in state since it doesn't affect the GUI
-		// TODO only for testing
-		this.api = new pzAPI("http://localhost:5050");
+		this.api = new pzAPI();
 
 		this._onLogin = this._onLogin.bind(this);
 		this._getEntries = this._getEntries.bind(this);
