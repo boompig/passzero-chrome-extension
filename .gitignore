@@ -27,3 +27,9 @@ TODO.md
 
 # editor stuff
 .vimrc
+
+# jest coverage
+cov
+
+# archive created for Firefox extension
+dist/Archive.zip

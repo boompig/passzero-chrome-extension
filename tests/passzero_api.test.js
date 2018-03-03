@@ -8,6 +8,7 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 const DEFAULT_EMAIL = "a@a.com";
 const DEFAULT_PASSWORD = "a";
 const DEFAULT_BASE_URL = "http://localhost:5050";
+//const DEFAULT_BASE_URL = "https://passzero.herokuapp.com";
 
 describe("login", () => {
 	it("should fail to login with bad credentials", () => {
