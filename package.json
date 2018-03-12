@@ -1,6 +1,6 @@
 {
   "name": "passzero-chrome-extension",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "Chrome extension for PassZero password manager",
   "main": "src/passzero_react.jsx",
   "scripts": {
