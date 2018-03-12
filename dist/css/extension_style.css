@@ -55,6 +55,10 @@
 
 /********** end individual decrypted entry *********/
 
+.copy-password-btn {
+	margin-top: 0.5em;
+}
+
 #lock-btn-container {
 	padding-left: 1em;
 	padding-right: 1em;

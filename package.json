@@ -12,10 +12,13 @@
   "author": "Daniel Kats",
   "license": "MIT",
   "dependencies": {
+    "@types/clipboard": "^2.0.0",
     "bootstrap": "^3.3.6",
+    "clipboard": "^2.0.0",
     "flow": "^0.2.3",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
+    "react-tooltip": "^3.4.0",
     "webpack": "^3.10.0",
     "whatwg-fetch": "^2.0.3"
   },

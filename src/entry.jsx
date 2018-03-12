@@ -1,6 +1,9 @@
 // @flow
 
 import * as React from "react";
+// doing this because Clipboard is already a reserved keyword in extensions
+import * as MyClipboard from "clipboard";
+import ReactTooltip from "react-tooltip";
 
 import Utils from "./passzero_utils.js";
 import type { T_DecEntry, T_EncEntry } from "./types";
@@ -16,10 +19,34 @@ type IEntryProps = {
 
 class Entry extends React.Component<IEntryProps, IEntryState> {
 	handlePasswordClick: Function;
+	copyButtonEnabled: boolean;
+	initClipboard: Function;
 
 	constructor(props: IEntryProps) {
 		super(props);
+		this.copyButtonEnabled = false;
 		this.handlePasswordClick = this.handlePasswordClick.bind(this);
+		this.initClipboard = this.initClipboard.bind(this);
+	}
+
+	initClipboard() {
+		new MyClipboard.default(".copy-password-btn");
+		this.copyButtonEnabled = true;
+	}
+
+	componentDidMount() {
+		if(!this.props.entry.is_encrypted) {
+			this.initClipboard();
+		}
+	}
+
+	/**
+	 * Not called on initial render
+	 */
+	componentDidUpdate() {
+		if(!this.copyButtonEnabled && !this.props.entry.is_encrypted) {
+			this.initClipboard();
+		}
 	}
 
 	handlePasswordClick(event: SyntheticEvent<HTMLElement>) {
@@ -44,6 +71,16 @@ class Entry extends React.Component<IEntryProps, IEntryState> {
 						onClick={ this.handlePasswordClick }>
 						{ this.props.entry.password }
 					</div>
+					<button className="form-control btn btn-success copy-password-btn"
+						data-tip="Copied to clipboard!"
+						data-event="click"
+						data-event-off="mouseout blur"
+						data-clipboard-text={ this.props.entry.password }>Copy Password</button>
+					<ReactTooltip
+						type="dark"
+						place="top"
+						effect="solid"
+						delayHide={ 2000 } />
 				</div>
 			);
 		}
