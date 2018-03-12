@@ -7,7 +7,7 @@
     "test": "yarn run flow check && yarn jest",
     "jest": "jest",
     "lint": "eslint ./src/*",
-    "build": "webpack"
+    "build": "webpack -p"
   },
   "author": "Daniel Kats",
   "license": "MIT",

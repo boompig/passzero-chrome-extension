@@ -114,3 +114,36 @@ describe("createEntry and deleteEntry", () => {
 			});
 	});
 });
+
+describe("logout", () => {
+	it("should successfully log out", () => {
+		expect.assertions(1);
+		const api = new pzAPI(DEFAULT_BASE_URL);
+		return api.login(DEFAULT_EMAIL, DEFAULT_PASSWORD)
+			.then(token => {
+				return api.logout();
+			}).then((response) => {
+				// just make sure we're here
+				expect(response.status).toBe("success");
+			});
+	});
+
+	it("should not be possible to use the token after logout", () => {
+		expect.assertions(2);
+		const api = new pzAPI(DEFAULT_BASE_URL);
+		let oldToken = null;
+		return api.login(DEFAULT_EMAIL, DEFAULT_PASSWORD)
+			.then(token => {
+				oldToken = token;
+				return api.logout();
+			}).then((response) => {
+				// just make sure we're here
+				expect(response.status).toBe("success");
+			}).then(() => {
+				// internal token should be cleared
+				return api.getEntries();
+			}).catch((err) => {
+				expect(1).toBe(1);
+			});
+	});
+});

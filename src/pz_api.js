@@ -135,11 +135,9 @@ class pzAPI {
 	}
 
 	_rejectNoParam(param: string): Promise<any> {
-		return new Promise((resolve, reject) => {
-			reject({
-				"errorText": "Parameter " + param + " is required",
-				"statusMessage": "MISSING_REQUIRED_PARAM"
-			});
+		return Promise.reject({
+			"errorText": "Parameter " + param + " is required",
+			"statusMessage": "MISSING_REQUIRED_PARAM"
 		});
 	}
 
@@ -172,8 +170,9 @@ class pzAPI {
 		}
 		const options = { "token": this.token };
 		return this.deleteJSON("/api/v3/token", options)
-			.then(() => {
+			.then((response) => {
 				this.token = null;
+				return response;
 			});
 	}
 
