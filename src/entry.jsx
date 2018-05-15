@@ -2,7 +2,7 @@
 
 import * as React from "react";
 // doing this because Clipboard is already a reserved keyword in extensions
-import * as MyClipboard from "clipboard";
+import MyClipboard from "clipboard";
 import ReactTooltip from "react-tooltip";
 
 import Utils from "./passzero_utils.js";
@@ -21,16 +21,25 @@ class Entry extends React.Component<IEntryProps, IEntryState> {
 	handlePasswordClick: Function;
 	copyButtonEnabled: boolean;
 	initClipboard: Function;
+	copyButton: any;
+
+	clipboard: any;
 
 	constructor(props: IEntryProps) {
 		super(props);
+		this.clipboard = null;
 		this.copyButtonEnabled = false;
 		this.handlePasswordClick = this.handlePasswordClick.bind(this);
 		this.initClipboard = this.initClipboard.bind(this);
 	}
 
 	initClipboard() {
-		new MyClipboard.default(".copy-password-btn");
+		this.clipboard = new MyClipboard(this.copyButton, {
+			target: () => {
+				// select the element dynamically
+				return document.getElementById("password-" + this.props.entry.id);
+			},
+		});
 		this.copyButtonEnabled = true;
 	}
 
@@ -46,6 +55,12 @@ class Entry extends React.Component<IEntryProps, IEntryState> {
 	componentDidUpdate() {
 		if(!this.copyButtonEnabled && !this.props.entry.is_encrypted) {
 			this.initClipboard();
+		}
+	}
+
+	componentWillUnmount() {
+		if(this.clipboard) {
+			this.clipboard.destroy();
 		}
 	}
 
@@ -68,14 +83,15 @@ class Entry extends React.Component<IEntryProps, IEntryState> {
 					</div>
 					<div className="entry-username">{ this.props.entry.username }</div>
 					<div className="entry-password password-hidden"
+						id={ "password-" + this.props.entry.id }
 						onClick={ this.handlePasswordClick }>
 						{ this.props.entry.password }
 					</div>
 					<button className="form-control btn btn-success copy-password-btn"
 						data-tip="Copied to clipboard!"
 						data-event="click"
-						data-event-off="mouseout blur"
-						data-clipboard-text={ this.props.entry.password }>Copy Password</button>
+						ref={ (elem) => this.copyButton = elem }
+						data-event-off="mouseout blur">Copy Password</button>
 					<ReactTooltip
 						type="dark"
 						place="top"
