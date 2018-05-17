@@ -18,6 +18,9 @@ declare var browser: any;
 
 var Cookies = {};
 
+/**
+ * Returns a promise
+ */
 function setCookiesAPI() {
 	if(typeof(browser) !== "undefined") {
 		return browser.runtime.getBrowserInfo()
@@ -45,6 +48,36 @@ function setCookiesAPI() {
 	}
 }
 
+/**
+ * Returns a promise
+ */
+function setActiveTabAPI() {
+	if(typeof(browser) !== "undefined") {
+		return browser.runtime.getBrowserInfo()
+			.then((info) => {
+				if(info.vendor === "Mozilla") {
+					Console.log("This is a Firefox extension. Active tab code doesn't work on Firefox yet.");
+					return Promise.resolve(false);
+				} else {
+					Console.error("Unknown browser vendor: " + info.vendor);
+					Console.log(info);
+					return Promise.resolve(false);
+				}
+			});
+	} else if(typeof(chrome) !== "undefined") {
+		return new Promise((resolve) => {
+			Console.log("This is a Chrome extension. Using the active tab API");
+			resolve(true);
+		});
+	} else {
+		return new Promise((resolve, reject) => {
+			// something weird
+			Console.error("failed to query what kind of browser this is so not using active tab API");
+			reject();
+		});
+	}
+}
+
 type T_Entry = T_DecEntry | T_EncEntry;
 
 type IProps = {};
@@ -56,7 +89,9 @@ type IState = {
 	email: string,
 	password: string,
 	deleteFlag: boolean,
-	loginErrorMsg: ?string
+	loginErrorMsg: ?string,
+	hasActiveTab: boolean,
+	currentUrl: string
 };
 
 /**
@@ -79,6 +114,7 @@ class PassZero extends React.Component<IProps, IState> {
 	handleDecryptEntry: (decEntry: T_DecEntry, index: number) => void;
 
 	getEntryById: Function;
+	getCurrentTabUrl: Function;
 
 	api: pzAPI;
 
@@ -89,13 +125,20 @@ class PassZero extends React.Component<IProps, IState> {
 			selectedEntry: null,
 			entries: [],
 			email: "",
+			// need to remember this in memory because used for decryption APIs
 			password: "",
 			deleteFlag: false,
-			loginErrorMsg: null
+			loginErrorMsg: null,
+			// this is set in componentWillUpdate
+			hasActiveTab: false,
+			// this is set in _onLogin
+			currentUrl: "",
 		};
 
 		// no need to keep this in state since it doesn't affect the GUI
-		this.api = new pzAPI();
+		this.api = new pzAPI(PassZeroDomain);
+
+		this.getCurrentTabUrl = this.getCurrentTabUrl.bind(this);
 
 		this._onLogin = this._onLogin.bind(this);
 		this._getEntries = this._getEntries.bind(this);
@@ -115,6 +158,39 @@ class PassZero extends React.Component<IProps, IState> {
 	}
 
 	/**
+	 * Get the URL of the current tab if possible
+	 * Encapsulate the various browser APIs in a promise
+	 * Return a promise
+	 */
+	getCurrentTabUrl(): Promise<void> {
+		if(this.state.hasActiveTab) {
+			return new Promise((resolve) => {
+				// TODO using chrome-specific APIs for now
+				chrome.windows.getCurrent((window) => {
+					const query = {
+						active: true,
+						windowId: window.id,
+					};
+					chrome.tabs.query(query, (tabs) => {
+						const currentTab = tabs[0];
+						// populate the search with the current URL
+						Console.log("Current URL = " + currentTab.url);
+						this.setState({
+							currentUrl: currentTab.url,
+						}, () => {
+							// promise is resolved when currentUrl set in state
+							resolve();
+						});
+					});
+				});
+			});
+		} else {
+			// promise resolved immediately
+			return Promise.resolve();
+		}
+	}
+
+	/**
 	 * Called on successful loggin
 	 * loggedIn = true already set
 	 * Loads entries
@@ -127,9 +203,10 @@ class PassZero extends React.Component<IProps, IState> {
 			name: "email",
 			value: this.state.email
 		}, (cookie) => {
-			Console.log("Email cookie is set:");
-			Console.log(cookie);
-			this._getEntries();
+			Console.log("Email cookie is set (successful login)");
+			this.getCurrentTabUrl().then(() => {
+				this._getEntries();
+			});
 		});
 	}
 
@@ -149,37 +226,54 @@ class PassZero extends React.Component<IProps, IState> {
 			})
 			.catch((response) => {
 				Console.log("Failed to get entries");
-				if (response.statusMessage === "UNAUTHORIZED" ||
+				if (response.status === 403 || 
+					response.statusMessage === "UNAUTHORIZED" ||
 					response.statusMessage === "NO_TOKEN") {
+					Console.log("Getting entries failed. Setting state to logged out.")
+					// all the invalidation logic is handled in componentWillUpdate
 					this.setState({
-						loggedIn: false
+						loggedIn: false,
 					});
 				} else {
+					// not sure what happened here.
+					// Usually some kind of internal server error
+					if (response.body) {
+						response.text().then((text) => {
+							Console.log("response body text:");
+							Console.log(text);
+						});
+					}
 					Console.error(response);
+					// still should log out
+					this.setState({
+						loggedIn: false,
+					});
 				}
 			});
 	}
 
 	/**
 	 * Called when logout state has been set.
+	 *
+	 * Will also be called when the login/API token information is stale
+	 *
 	 * It is already the case that:
 	 *      1. We are logged out with respect to the server
 	 *      2. state says we are logged out
 	 */
 	_onLogout() {
 		Console.log("Logged out");
-		this.setState({
-			selectedEntry: null
-		});
-		// current session is not correct
-		// delete the session
-		const obj = {
+		// delete the apiToken
+		const apiTokenCookieProps = {
 			url: PassZeroDomain,
-			name: "session"
+			name: "apiToken"
 		};
-		Cookies.remove(obj, (details) => {
-			Console.log("remove session cookie response:");
-			Console.log(details);
+		Cookies.remove(apiTokenCookieProps, (details) => {
+			Console.log("Removed apiToken cookie (logout)");
+			// reset selectedEntry
+			this.setState({
+				selectedEntry: null
+			});
 		});
 	}
 
@@ -193,15 +287,28 @@ class PassZero extends React.Component<IProps, IState> {
 
 	handleLoginSubmit(form: T_LoginForm) {
 		this.api.login(this.state.email, form.password)
-			.then(() => {
+			.then((apiToken) => {
 				Console.log("Logged in!");
+				// async
 				this.setState({
 					loggedIn: true,
 					loginErrorMsg: null,
-					// save the password on successful login
+					// save the password in memory on successful login
 					password: form.password,
 				});
-			}).catch((response) => {
+				return apiToken;
+			})
+			.then((apiToken) => {
+				Cookies.set({
+					url: PassZeroDomain,
+					name: "apiToken",
+					value: apiToken
+				}, (cookie) => {
+					Console.log("API token cookie is set (successful login)");
+					// getting entries and next steps determined by componentWillUpdate
+				});
+			})
+			.catch((response) => {
 				Console.error("Failed to log in");
 				let errorMsg = "";
 				if (response.status === 0) {
@@ -326,7 +433,8 @@ class PassZero extends React.Component<IProps, IState> {
 					/> }
 				{ this.state.loggedIn && !this.state.selectedEntry ?
 					<Search entries={ this.state.entries }
-						onEntryClick={ this.handleEntryClick } /> :
+						onEntryClick={ this.handleEntryClick }
+						currentUrl={ this.state.currentUrl } /> :
 					null }
 				{ this.state.loggedIn && !this.state.deleteFlag && this.state.selectedEntry ?
 					<Entry entry={ this.getEntryById(this.state.selectedEntry) }
@@ -351,31 +459,42 @@ class PassZero extends React.Component<IProps, IState> {
 
 	/**
 	 * Called after the constructor
+	 * Only called once.
 	 */
 	componentWillMount() {
-		setCookiesAPI().then(() => {
+		// figure out if we have an active tab API
+		setActiveTabAPI().then((hasActiveTab: boolean) => {
+			Console.log("hasActiveTab? " + hasActiveTab.toString());
+			return this.setState({
+				"hasActiveTab": hasActiveTab,
+			});
+		}).then(() => {
+			// figure out which cookie API is enabled
+			return setCookiesAPI();
+		}).then(() => {
+				
 			// Cookies API is set asynchronously
-			const obj = {
+			const apiTokenCookieProps = {
 				url: PassZeroDomain,
-				name: "session"
+				name: "apiToken"
 			};
 			const emailCookieProps = {
 				url: PassZeroDomain,
 				name: "email"
 			};
 			Cookies.get(emailCookieProps, (cookie) => {
-				Console.log("email cookie:");
-				Console.log(cookie);
-				if (cookie) {
+				if (cookie && cookie.value) {
+					Console.log("Found saved email cookie.");
 					this.setState({ email: cookie.value });
 				} else {
 					// get rid of null cookie
 					Cookies.remove(emailCookieProps);
 				}
 			});
-			Cookies.get(obj, (cookie) => {
+			Cookies.get(apiTokenCookieProps, (cookie) => {
 				if (cookie && cookie.value) {
-					Console.log("logged in (due to session cookie)!");
+					Console.log("Found saved API token, trying to use that to log in...");
+					this.api.setToken(cookie.value);
 					this.setState({ loggedIn: true });
 				}
 			});

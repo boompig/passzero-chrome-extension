@@ -7,11 +7,12 @@ import type { T_DecEntry, T_EncEntry } from "./types";
 
 type ISearchProps = {
 	onEntryClick: (entryId: number, index: number) => void,
-	entries: Array<(T_DecEntry | T_EncEntry)>
+	entries: Array<(T_DecEntry | T_EncEntry)>,
+	currentUrl: string,
 };
 
 type ISearchState = {
-	searchString: string,
+	searchString: string
 };
 
 /**
@@ -21,16 +22,42 @@ type ISearchState = {
 class Search extends React.Component<ISearchProps, ISearchState> {
 
 	handleChange: (e: SyntheticEvent<HTMLElement>) => void;
+	handleClearSearch: () => void;
 
 	constructor(props: ISearchProps) {
 		super(props);
-		this.state = { searchString: "" };
+		this.state = {
+		};
+		//if(this.props.currentUrl) {
+			//this.state.searchString = `url: ${this.props.currentUrl}`;
+		//} else {
+		this.state.searchString = "";
+		//}
 		this.handleChange = this.handleChange.bind(this);
+		this.handleClearSearch = this.handleClearSearch.bind(this);
 	}
 
-	handleChange(e: SyntheticEvent<HTMLElement>) {
+	componentWillUpdate(nextProps: ISearchProps, nextState: ISearchState) {
+		//if(this.props.currentUrl === "" && nextProps.currentUrl !== "") {
+			//console.log("setting the search string to the current URL");
+			//// set the search string to query for the current URL
+			//this.setState({
+				//searchString: `url: ${nextProps.currentUrl}`,
+			//});
+		//}
+	}
+
+	handleClearSearch() {
+		console.log("Reset the search string");
+		this.setState({
+			searchString: "",
+		});
+	}
+
+	handleChange(e: SyntheticEvent<HTMLElement>): void {
 		if(e.target instanceof window.HTMLInputElement) {
-			this.setState({ searchString: e.target.value });
+			const searchString = e.target.value;
+			this.setState({ "searchString": searchString });
 		}
 	}
 
@@ -39,12 +66,19 @@ class Search extends React.Component<ISearchProps, ISearchState> {
 		return (
 			<div id="search-container">
 				<form id="search-form" role="search">
-					<input className="form-control"
-						type="search"
-						placeholder="search"
-						name="search"
-						onChange={ this.handleChange }
-						tabIndex="1" />
+					<div className="search-input-container form-group has-feedback">
+						<input className="form-control"
+							type="search"
+							placeholder="search"
+							name="search"
+							onChange={ this.handleChange }
+							tabIndex="1"
+							value={ this.state.searchString } />
+						<span role="button"
+							className="clear-search-btn glyphicon glyphicon-remove-circle form-control-feedback"
+							onClick={ this.handleClearSearch }
+							></span>
+					</div>
 				</form>
 				<SearchResults
 					entries={ this.props.entries }

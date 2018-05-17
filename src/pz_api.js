@@ -45,6 +45,13 @@ class pzAPI {
 	}
 
 	/**
+	 * Set the API token (if available from a previous session)
+	 */
+	setToken(token: string) {
+		this.token = token;
+	}
+
+	/**
 	 * Return the parsed response body
 	 */
 	getJSON(relativeUrl: string, token?: string): Promise<any> {
@@ -153,7 +160,10 @@ class pzAPI {
 	}
 
 	/**
-	 * Save the token
+	 * Login (get a new API token)
+	 *
+	 * This method will reset the API token if the current token is invalid
+	 * On successful login, save the new token in memory
 	 */
 	login(email: string, password: string): Promise<any> {
 		const data = { "email": email, "password": password };

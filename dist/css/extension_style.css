@@ -28,9 +28,14 @@
 }
 
 /* on firefox for some reason the search input is too big */
-#search-container .form-control {
+#search-container .search-input-container {
 	margin-bottom: 0.2em;
 	max-width: 96%;
+}
+
+#search-container .clear-search-btn {
+	/* have to reset this because of bootstrap */
+	pointer-events: auto;
 }
 
 /********** end search container ********/
