@@ -16,6 +16,7 @@ class pzAPI {
 	createEntry: Function;
 	deleteEntry: Function;
 	getEntry: Function;
+	setToken: Function;
 
 	constructor(baseUrl: ?string) {
 		this.token = null;
@@ -32,6 +33,7 @@ class pzAPI {
 		this.getEntry = this.getEntry.bind(this);
 		this.createEntry = this.createEntry.bind(this);
 		this.deleteEntry = this.deleteEntry.bind(this);
+		this.setToken = this.setToken.bind(this);
 	}
 
 	getHeaderWithToken(token: ?string) {

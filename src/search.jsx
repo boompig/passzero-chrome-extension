@@ -25,29 +25,39 @@ class Search extends React.Component<ISearchProps, ISearchState> {
 
 	handleChange: (e: SyntheticEvent<HTMLElement>) => void;
 	handleClearSearch: () => void;
+	
+	constructor(props: ISearchProps) {
+		super(props);
+		this.state = {};
+		this.state.searchString = "";
+		this.handleChange = this.handleChange.bind(this);
+		this.handleClearSearch = this.handleClearSearch.bind(this);
+	}
 
+	/**
 	constructor(props: ISearchProps) {
 		super(props);
 		this.state = {
 		};
-		//if(this.props.currentUrl) {
-			//this.state.searchString = `url: ${this.props.currentUrl}`;
-		//} else {
-		this.state.searchString = "";
-		//}
+		if(this.props.currentUrl) {
+			this.state.searchString = `url: ${this.props.currentUrl}`;
+		} else {
+			this.state.searchString = "";
+		}
 		this.handleChange = this.handleChange.bind(this);
 		this.handleClearSearch = this.handleClearSearch.bind(this);
 	}
 
 	componentWillUpdate(nextProps: ISearchProps, nextState: ISearchState) {
-		//if(this.props.currentUrl === "" && nextProps.currentUrl !== "") {
-			//console.log("setting the search string to the current URL");
-			//// set the search string to query for the current URL
-			//this.setState({
-				//searchString: `url: ${nextProps.currentUrl}`,
-			//});
-		//}
+		if(this.props.currentUrl === "" && nextProps.currentUrl !== "") {
+			console.log("setting the search string to the current URL");
+			// set the search string to query for the current URL
+			this.setState({
+				searchString: `url: ${nextProps.currentUrl}`,
+			});
+		}
 	}
+	*/
 
 	handleClearSearch() {
 		this.setState({

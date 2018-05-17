@@ -12,6 +12,10 @@ const PassZeroDomain = "https://passzero.herokuapp.com";
 
 const Console = console;
 
+// use chrome.storage for storing information instead of Cookies
+// will *not* work in popup
+const useChromeStorage = false;
+
 // extension development types & polyfill
 declare var chrome: any;
 declare var browser: any;
@@ -116,6 +120,10 @@ class PassZero extends React.Component<IProps, IState> {
 	getEntryById: Function;
 	getCurrentTabUrl: Function;
 
+	storageSet: Function;
+	storageGet: Function;
+	storageRemove: Function;
+
 	api: pzAPI;
 
 	constructor() {
@@ -138,8 +146,6 @@ class PassZero extends React.Component<IProps, IState> {
 		// no need to keep this in state since it doesn't affect the GUI
 		this.api = new pzAPI(PassZeroDomain);
 
-		this.getCurrentTabUrl = this.getCurrentTabUrl.bind(this);
-
 		this._onLogin = this._onLogin.bind(this);
 		this._getEntries = this._getEntries.bind(this);
 		this._onLogout = this._onLogout.bind(this);
@@ -155,6 +161,11 @@ class PassZero extends React.Component<IProps, IState> {
 		this.handleDecryptEntry = this.handleDecryptEntry.bind(this);
 
 		this.getEntryById = this.getEntryById.bind(this);
+		this.getCurrentTabUrl = this.getCurrentTabUrl.bind(this);
+
+		this.storageSet = this.storageSet.bind(this);
+		this.storageGet = this.storageGet.bind(this);
+		this.storageRemove = this.storageRemove.bind(this);
 	}
 
 	/**
@@ -195,18 +206,16 @@ class PassZero extends React.Component<IProps, IState> {
 	 * loggedIn = true already set
 	 * Loads entries
 	 */
-	_onLogin() {
+	_onLogin(): void {
 		// save state email in a cookie
 		Console.log("Setting email cookie: " + this.state.email);
-		Cookies.set({
-			url: PassZeroDomain,
-			name: "email",
-			value: this.state.email
-		}, () => {
-			Console.log("Email cookie is set (successful login)");
-			this.getCurrentTabUrl().then(() => {
-				this._getEntries();
-			});
+		this.storageSet("email", this.state.email).then(() => {
+			return this.storageSet("password", this.state.password);
+		}).then(() => {
+			Console.log("Email and password cookies are set (successful login)");
+			return this.getCurrentTabUrl();
+		}).then(() => {
+			this._getEntries();
 		});
 	}
 
@@ -264,12 +273,10 @@ class PassZero extends React.Component<IProps, IState> {
 	_onLogout() {
 		Console.log("Logged out");
 		// delete the apiToken
-		const apiTokenCookieProps = {
-			url: PassZeroDomain,
-			name: "apiToken"
-		};
-		Cookies.remove(apiTokenCookieProps, () => {
-			Console.log("Removed apiToken cookie (logout)");
+		this.storageRemove("apiToken").then(() => {
+			return this.storageRemove("password");
+		}).then(() => {
+			Console.log("Removed apiToken and password cookies (logout)");
 			// reset selectedEntry
 			this.setState({
 				selectedEntry: null
@@ -289,23 +296,20 @@ class PassZero extends React.Component<IProps, IState> {
 		this.api.login(this.state.email, form.password)
 			.then((apiToken) => {
 				Console.log("Logged in!");
+				return apiToken;
+			})
+			.then((apiToken) => {
+				// setting API token here because this is where it's returned
+				return this.storageSet("apiToken", apiToken);
+			}).then(() => {
+				Console.log("API token cookie is set (successful login)");
+				// getting entries and next steps determined by componentWillUpdate
 				// async
 				this.setState({
 					loggedIn: true,
 					loginErrorMsg: null,
 					// save the password in memory on successful login
 					password: form.password,
-				});
-				return apiToken;
-			})
-			.then((apiToken) => {
-				Cookies.set({
-					url: PassZeroDomain,
-					name: "apiToken",
-					value: apiToken
-				}, () => {
-					Console.log("API token cookie is set (successful login)");
-					// getting entries and next steps determined by componentWillUpdate
 				});
 			})
 			.catch((response) => {
@@ -355,7 +359,13 @@ class PassZero extends React.Component<IProps, IState> {
 		});
 		// and initiate entry decryption
 		this.api.getEntry(entryID, this.state.password)
-			.then(entry => this.handleDecryptEntry(entry, index));
+			.then(entry => this.handleDecryptEntry(entry, index))
+			.catch((err) => {
+				console.error("Failed to decrypt entry. Logging out.");
+				console.error(err);
+				// this is weird but we should do something sane here
+				this.setState({ loggedIn: false });
+			});
 	}
 
 	getEntryById(entryID: number) {
@@ -458,6 +468,75 @@ class PassZero extends React.Component<IProps, IState> {
 		);
 	}
 
+	storageRemove(key: string): Promise<void> {
+		if(useChromeStorage && chrome && chrome.storage) {
+			return new Promise((resolve) => {
+				chrome.storage.local.remove(key, () => {
+					resolve();
+				});
+			});
+		} else {
+			// falling back to cookies
+			return new Promise((resolve) => {
+				const cookieProps = {
+					url: PassZeroDomain,
+					name: key,
+				};
+				Cookies.remove(cookieProps, () => {
+					resolve();
+				});
+			});
+		}
+	}
+
+	storageGet(key: string): Promise<any> {
+		if(useChromeStorage && chrome && chrome.storage) {
+			return new Promise((resolve) => {
+				chrome.storage.local.get(key, (items) => {
+					resolve(items[0]);
+				});
+			});
+		} else {
+			// falling back to cookies
+			return new Promise((resolve) => {
+				const cookieProps = {
+					"url": PassZeroDomain,
+					"name": key,
+				};
+				Cookies.get(cookieProps, (cookie) => {
+					if (cookie && cookie.value) {
+						resolve(cookie.value);
+					} else {
+						resolve(null);
+					}
+				});
+			});
+		}
+	}
+
+	storageSet(key: string, value: any): Promise<void> {
+		if(useChromeStorage && chrome && chrome.storage) {
+			return new Promise((resolve) => {
+				const obj = {};
+				obj[key] = value;
+				chrome.storage.local.set(obj, () => {
+					resolve();
+				});
+			});
+		} else {
+			// falling back to cookies
+			return new Promise((resolve) => {
+				Cookies.set({
+					"url": PassZeroDomain,
+					"name": key, 
+					"value": value,
+				}, () => {
+					resolve();
+				});
+			});
+		}
+	}
+
 	/**
 	 * Called after the constructor
 	 * Only called once.
@@ -473,31 +552,46 @@ class PassZero extends React.Component<IProps, IState> {
 			// figure out which cookie API is enabled
 			return setCookiesAPI();
 		}).then(() => {
-				
-			// Cookies API is set asynchronously
-			const apiTokenCookieProps = {
-				url: PassZeroDomain,
-				name: "apiToken"
-			};
-			const emailCookieProps = {
-				url: PassZeroDomain,
-				name: "email"
-			};
-			Cookies.get(emailCookieProps, (cookie) => {
-				if (cookie && cookie.value) {
+			var email, password, apiToken;
+
+			this.storageGet("email").then((_email) => {
+				if (_email) {
 					Console.log("Found saved email cookie.");
-					this.setState({ email: cookie.value });
+					email = _email;
 				} else {
-					// get rid of null cookie
-					Cookies.remove(emailCookieProps);
+					// get rid of null email (async)
+					this.storageRemove("email");
 				}
-			});
-			Cookies.get(apiTokenCookieProps, (cookie) => {
-				if (cookie && cookie.value) {
+				return this.storageGet("password");
+			}).then((_password) => {
+				if (_password) {
+					Console.log("Found saved password cookie.");
+					password = _password;
+				}
+				return this.storageGet("apiToken");
+			}).then((_apiToken) => {
+				if (_apiToken) {
 					Console.log("Found saved API token, trying to use that to log in...");
-					this.api.setToken(cookie.value);
-					this.setState({ loggedIn: true });
+					apiToken = _apiToken;
 				}
+				// return something
+				return true;
+			}).then(() => {
+				const newState = {};
+				if(email) {
+					newState.email = email;
+				}
+				if(password) {
+					newState.password =  password;
+				}
+				if(password && apiToken) {
+					newState.loggedIn = true;
+				}
+				if(apiToken) {
+					this.api.setToken(apiToken);
+				}
+				// perform a bulk-update here
+				this.setState(newState);
 			});
 		});
 	}
