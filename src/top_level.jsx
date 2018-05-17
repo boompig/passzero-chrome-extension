@@ -202,7 +202,7 @@ class PassZero extends React.Component<IProps, IState> {
 			url: PassZeroDomain,
 			name: "email",
 			value: this.state.email
-		}, (cookie) => {
+		}, () => {
 			Console.log("Email cookie is set (successful login)");
 			this.getCurrentTabUrl().then(() => {
 				this._getEntries();
@@ -229,7 +229,7 @@ class PassZero extends React.Component<IProps, IState> {
 				if (response.status === 403 || 
 					response.statusMessage === "UNAUTHORIZED" ||
 					response.statusMessage === "NO_TOKEN") {
-					Console.log("Getting entries failed. Setting state to logged out.")
+					Console.log("Getting entries failed. Setting state to logged out.");
 					// all the invalidation logic is handled in componentWillUpdate
 					this.setState({
 						loggedIn: false,
@@ -268,7 +268,7 @@ class PassZero extends React.Component<IProps, IState> {
 			url: PassZeroDomain,
 			name: "apiToken"
 		};
-		Cookies.remove(apiTokenCookieProps, (details) => {
+		Cookies.remove(apiTokenCookieProps, () => {
 			Console.log("Removed apiToken cookie (logout)");
 			// reset selectedEntry
 			this.setState({
@@ -303,7 +303,7 @@ class PassZero extends React.Component<IProps, IState> {
 					url: PassZeroDomain,
 					name: "apiToken",
 					value: apiToken
-				}, (cookie) => {
+				}, () => {
 					Console.log("API token cookie is set (successful login)");
 					// getting entries and next steps determined by componentWillUpdate
 				});
@@ -431,10 +431,11 @@ class PassZero extends React.Component<IProps, IState> {
 						onEmailChange={ this.handleEmailChange }
 						errorMsg={ this.state.loginErrorMsg } 
 					/> }
-				{ this.state.loggedIn && !this.state.selectedEntry ?
+				{ this.state.loggedIn ?
 					<Search entries={ this.state.entries }
 						onEntryClick={ this.handleEntryClick }
-						currentUrl={ this.state.currentUrl } /> :
+						currentUrl={ this.state.currentUrl }
+						hide={ this.state.selectedEntry !== null } /> :
 					null }
 				{ this.state.loggedIn && !this.state.deleteFlag && this.state.selectedEntry ?
 					<Entry entry={ this.getEntryById(this.state.selectedEntry) }

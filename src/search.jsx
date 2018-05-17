@@ -9,6 +9,8 @@ type ISearchProps = {
 	onEntryClick: (entryId: number, index: number) => void,
 	entries: Array<(T_DecEntry | T_EncEntry)>,
 	currentUrl: string,
+	// if set to true, do not show this component
+	hide: boolean
 };
 
 type ISearchState = {
@@ -48,7 +50,6 @@ class Search extends React.Component<ISearchProps, ISearchState> {
 	}
 
 	handleClearSearch() {
-		console.log("Reset the search string");
 		this.setState({
 			searchString: "",
 		});
@@ -62,6 +63,9 @@ class Search extends React.Component<ISearchProps, ISearchState> {
 	}
 
 	render() {
+		if(this.props.hide) {
+			return <div></div>;
+		}
 		const searchString = this.state.searchString.trim().toLowerCase();
 		return (
 			<div id="search-container">
@@ -76,8 +80,7 @@ class Search extends React.Component<ISearchProps, ISearchState> {
 							value={ this.state.searchString } />
 						<span role="button"
 							className="clear-search-btn glyphicon glyphicon-remove-circle form-control-feedback"
-							onClick={ this.handleClearSearch }
-							></span>
+							onClick={ this.handleClearSearch } ></span>
 					</div>
 				</form>
 				<SearchResults
