@@ -18,7 +18,7 @@ var config = {
 			{
 				test: /\.jsx?/,
 				include: APP_DIR,
-				loader: "babel-loader"
+				loader: "babel-loader",
 			}
 		]
 	}

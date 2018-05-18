@@ -5,6 +5,8 @@ import * as React from "react";
 import SearchResults from "./search_results";
 import type { T_DecEntry, T_EncEntry } from "./types";
 
+const Console = console;
+
 type ISearchProps = {
 	onEntryClick: (entryId: number, index: number) => void,
 	entries: Array<(T_DecEntry | T_EncEntry)>,
@@ -14,8 +16,68 @@ type ISearchProps = {
 };
 
 type ISearchState = {
-	searchString: string
+	searchString: string,
+	service: ?string,
 };
+
+/**
+ * Parse the given URL and return the service from it
+ * The intension is not for this to work *all the time*
+ * But should work in the most common cases
+ */
+function serviceFromUrl(url: string) {
+	if(url === "") {
+		return null;
+	}
+	// remove the protocol
+	let i = url.indexOf("://");
+	let protocol;
+	if(i === -1) {
+		Console.log(url);
+		console.error("Could not detect protocol");
+		return null;
+	}
+	protocol = url.substr(0, i);
+	//console.log("protocol is " + protocol);
+	url = url.substr(i + 3);
+	if(protocol === "chrome") {
+		// this is an internal chrome settings page
+		// no service is relevant in this context
+		return null;
+	}
+	if(url.startsWith("www.")) {
+		// URL includes www.
+		url = url.substr(4);
+	}
+
+	// now get rid of anything after the hostname
+	i = url.indexOf("/");
+	if(i !== -1) {
+		url = url.substr(0, i);
+	}
+	i = url.indexOf("?");
+	if(i !== -1) {
+		url = url.substr(0, i);
+	}
+
+	// remove the TLD
+	i = url.lastIndexOf(".");
+	if(i === -1) {
+		// TODO
+		console.error("This domain has no TLD. Possibly localhost?");
+		return null;
+	} else {
+		url = url.substr(0, i);
+	}
+
+	// the remaining part should be the service
+	// only return it if it "looks like" a service: a plain word
+	if(url.search(/[a-z]+$/) === 0) {
+		return url;
+	} else {
+		return null;
+	}
+}
 
 /**
  * Component for search
@@ -28,36 +90,40 @@ class Search extends React.Component<ISearchProps, ISearchState> {
 	
 	constructor(props: ISearchProps) {
 		super(props);
-		this.state = {};
-		this.state.searchString = "";
+		this.state = {
+			searchString: "",
+			// this is best-practice in props-mirroring
+			service: null,
+		};
+
 		this.handleChange = this.handleChange.bind(this);
 		this.handleClearSearch = this.handleClearSearch.bind(this);
 	}
 
 	/**
-	constructor(props: ISearchProps) {
-		super(props);
-		this.state = {
-		};
-		if(this.props.currentUrl) {
-			this.state.searchString = `url: ${this.props.currentUrl}`;
-		} else {
-			this.state.searchString = "";
+	 * Called each time this component receives new props
+	 */
+	static getDerivedStateFromProps(nextProps: ISearchProps, prevState: ISearchState) {
+		const service = serviceFromUrl(nextProps.currentUrl);
+		// service has changed
+		if(prevState.service !== service) {
+			if(service && prevState.searchString === "") {
+				Console.log("Updating searchString with respect to service...");
+				// return the object to update the state
+				return {
+					searchString: service,
+					// this is best-practice in props-mirroring
+					service: service,
+				};
+			} else {
+				// just update the service
+				return {
+					service: service,
+				};
+			}
 		}
-		this.handleChange = this.handleChange.bind(this);
-		this.handleClearSearch = this.handleClearSearch.bind(this);
+		return null;
 	}
-
-	componentWillUpdate(nextProps: ISearchProps, nextState: ISearchState) {
-		if(this.props.currentUrl === "" && nextProps.currentUrl !== "") {
-			console.log("setting the search string to the current URL");
-			// set the search string to query for the current URL
-			this.setState({
-				searchString: `url: ${nextProps.currentUrl}`,
-			});
-		}
-	}
-	*/
 
 	handleClearSearch() {
 		this.setState({

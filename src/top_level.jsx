@@ -204,13 +204,16 @@ class PassZero extends React.Component<IProps, IState> {
 	/**
 	 * Called on successful loggin
 	 * loggedIn = true already set
+	 *
+	 * state passed via argument because this is called from componentWillUpdate
+	 *
 	 * Loads entries
 	 */
-	_onLogin(): void {
+	_onLogin(nextState: IState): void {
 		// save state email in a cookie
-		Console.log("Setting email cookie: " + this.state.email);
-		this.storageSet("email", this.state.email).then(() => {
-			return this.storageSet("password", this.state.password);
+		Console.log("Setting email cookie: " + nextState.email);
+		this.storageSet("email", nextState.email).then(() => {
+			return this.storageSet("password", nextState.password);
 		}).then(() => {
 			Console.log("Email and password cookies are set (successful login)");
 			return this.getCurrentTabUrl();
@@ -286,7 +289,7 @@ class PassZero extends React.Component<IProps, IState> {
 
 	componentWillUpdate(nextProps: IProps, nextState: IState) {
 		if (!this.state.loggedIn && nextState.loggedIn) {
-			this._onLogin();
+			this._onLogin(nextState);
 		} else if (this.state.loggedIn && !nextState.loggedIn) {
 			this._onLogout();
 		}
@@ -552,13 +555,14 @@ class PassZero extends React.Component<IProps, IState> {
 			// figure out which cookie API is enabled
 			return setCookiesAPI();
 		}).then(() => {
-			var email, password, apiToken;
+			let email, password, apiToken;
 
 			this.storageGet("email").then((_email) => {
 				if (_email) {
 					Console.log("Found saved email cookie.");
 					email = _email;
 				} else {
+					Console.log("Did not find saved email cookie :(");
 					// get rid of null email (async)
 					this.storageRemove("email");
 				}
@@ -584,7 +588,7 @@ class PassZero extends React.Component<IProps, IState> {
 				if(password) {
 					newState.password =  password;
 				}
-				if(password && apiToken) {
+				if(email && password && apiToken) {
 					newState.loggedIn = true;
 				}
 				if(apiToken) {
