@@ -32,3 +32,6 @@ cov
 
 # archive created for Firefox extension
 dist/Archive.zip
+
+# secret files
+tests/secret-test-creds.js

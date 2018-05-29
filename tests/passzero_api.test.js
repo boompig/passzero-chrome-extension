@@ -1,20 +1,54 @@
 import { pzAPI } from "../src/pz_api";
+import { testEmail, testPassword } from "./secret-test-creds";
 
 // polyfill
 require("whatwg-fetch");
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
-const DEFAULT_EMAIL = "a@a.com";
-const DEFAULT_PASSWORD = "a";
-const DEFAULT_BASE_URL = "http://localhost:5050";
-//const DEFAULT_BASE_URL = "https://passzero.herokuapp.com";
+//const DEFAULT_BASE_URL = "http://localhost:5050";
+const DEFAULT_BASE_URL = "https://passzero.herokuapp.com";
+
+let entryId = null;
+
+/**
+ * Create an entry in the test account
+ */
+beforeAll(() => {
+	const entry = {
+		account: "foo",
+		username: "bar",
+		password: "baz",
+		has_2fa: true,
+		extra: "foobarbaz",
+	};
+	const api = new pzAPI(DEFAULT_BASE_URL);
+	return api.login(testEmail, testPassword)
+		.then(() => {
+			return api.createEntry(entry, testPassword);
+		})
+		.then((_entryId) => {
+			entryId = _entryId;
+			return api.logout();
+		});
+});
+
+afterAll(() => {
+	const api = new pzAPI(DEFAULT_BASE_URL);
+	return api.login(testEmail, testPassword)
+		.then(() => {
+			// entryId is the ID for the entry created in setup harness
+			return api.deleteEntry(entryId, testPassword);
+		}).then(() => {
+			return api.logout();
+		});
+});
 
 describe("login", () => {
 	it("should fail to login with bad credentials", () => {
 		const api = new pzAPI(DEFAULT_BASE_URL);
 		expect.assertions(1);
-		return api.login(DEFAULT_EMAIL, "bad password")
+		return api.login(testEmail, "bad password")
 			.catch((response) => {
 				expect(response.status).toBe(401);
 			});
@@ -24,7 +58,7 @@ describe("login", () => {
 		const api = new pzAPI(DEFAULT_BASE_URL);
 		expect.assertions(1);
 		// NOTE: should create this account
-		return api.login(DEFAULT_EMAIL, DEFAULT_PASSWORD)
+		return api.login(testEmail, testPassword)
 			.then((token) => {
 				expect(token).toBeTruthy();
 			});
@@ -46,7 +80,7 @@ describe("getEntries", () => {
 		expect.assertions(1);
 		const api = new pzAPI(DEFAULT_BASE_URL);
 		// NOTE: should create this account
-		return api.login(DEFAULT_EMAIL, DEFAULT_PASSWORD)
+		return api.login(testEmail, testPassword)
 			.then((token) => {
 				return api.getEntries();
 			}).then((entries) => {
@@ -59,13 +93,13 @@ describe("getEntry", () => {
 	it("should successfully decrypt an existing entry", () => {
 		expect.assertions(3);
 		const api = new pzAPI(DEFAULT_BASE_URL);
-		return api.login(DEFAULT_EMAIL, DEFAULT_PASSWORD)
+		return api.login(testEmail, testPassword)
 			.then((token) => {
 				return api.getEntries();
 			}).then((entries) => {
 				// decrypt the first entry
 				const entryId = entries[0].id;
-				return api.getEntry(entryId, DEFAULT_PASSWORD);
+				return api.getEntry(entryId, testPassword);
 			}).then((entry) => {
 				expect(entry).toHaveProperty("account");
 				expect(entry).toHaveProperty("username");
@@ -81,7 +115,7 @@ describe("createEntry and deleteEntry", () => {
 		// fill these variables in as we go
 		let newEntryId = null;
 		let numEntries = 0;
-		return api.login(DEFAULT_EMAIL, DEFAULT_PASSWORD)
+		return api.login(testEmail, testPassword)
 			.then((token) => {
 				return api.getEntries();
 			}).then((entries) => {
@@ -93,11 +127,11 @@ describe("createEntry and deleteEntry", () => {
 					"password": "baz",
 					"extra": "some xtra here",
 					"has_2fa": false
-				}, DEFAULT_PASSWORD);
+				}, testPassword);
 			}).then((entryId) => {
 				// decrypt that entry
 				newEntryId = entryId;
-				return api.getEntry(entryId, DEFAULT_PASSWORD);
+				return api.getEntry(entryId, testPassword);
 			}).then((entry) => {
 				expect(entry).toHaveProperty("account");
 				expect(entry).toHaveProperty("username");
@@ -105,7 +139,7 @@ describe("createEntry and deleteEntry", () => {
 				return api.deleteEntry(entry.id);
 			}).then(() => {
 				// just make sure deletion succeeds
-				return api.getEntry(newEntryId, DEFAULT_PASSWORD);
+				return api.getEntry(newEntryId, testPassword);
 			}).catch((response) => {
 				expect(response.status).toBe(400);
 				return api.getEntries();
@@ -119,7 +153,7 @@ describe("logout", () => {
 	it("should successfully log out", () => {
 		expect.assertions(1);
 		const api = new pzAPI(DEFAULT_BASE_URL);
-		return api.login(DEFAULT_EMAIL, DEFAULT_PASSWORD)
+		return api.login(testEmail, testPassword)
 			.then(token => {
 				return api.logout();
 			}).then((response) => {
@@ -132,7 +166,7 @@ describe("logout", () => {
 		expect.assertions(2);
 		const api = new pzAPI(DEFAULT_BASE_URL);
 		let oldToken = null;
-		return api.login(DEFAULT_EMAIL, DEFAULT_PASSWORD)
+		return api.login(testEmail, testPassword)
 			.then(token => {
 				oldToken = token;
 				return api.logout();

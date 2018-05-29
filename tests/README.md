@@ -1,3 +1,6 @@
 # Setup
 
-The testing will only work if the PassZero server is running locally on port 5050. If HTTPS is enabled for localhost, tests will not work with a self-signed certificate, or any other certificate that generates errors.
+You need to create a file `tests/secret-test-creds.js` which exports `testEmail` and `testPassword` constants. You can then add these credentials to the service database.
+
+You can modify whether you hit the "real" site or the fake site by editing `DEFAULT_BASE_URL` in `tests/passzero_api.test.js`.
+
