@@ -1,10 +1,11 @@
-var webpack = require("webpack");
-var path = require("path");
+const webpack = require("webpack");
+const path = require("path");
 
-var BUILD_DIR = path.resolve(__dirname, "dist/js");
-var APP_DIR = path.resolve(__dirname, "src");
+const BUILD_DIR = path.resolve(__dirname, "dist/js");
+const APP_DIR = path.resolve(__dirname, "src");
 
-var config = {
+const config = {
+	mode: "production",
 	entry: APP_DIR + "/passzero_react.jsx",
 	output: {
 		path: BUILD_DIR,
@@ -14,7 +15,7 @@ var config = {
 		extensions: [".jsx", ".js"]
 	},
 	module: {
-		loaders: [
+		rules: [
 			{
 				test: /\.jsx?/,
 				include: APP_DIR,
