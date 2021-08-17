@@ -1,5 +1,5 @@
 # ignore generated files
-dist/js/passzero_extension.js
+dist/js
 
 # private key
 *.pem
@@ -26,6 +26,7 @@ TODO.md
 
 # editor stuff
 .vimrc
+*.code-workspace
 
 # jest coverage
 cov

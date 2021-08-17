@@ -1,4 +1,5 @@
 module.exports = {
 	"collectCoverage": true,
-	"coverageDirectory": "cov"
+	"coverageDirectory": "cov",
+	"testURL": "http://localhost"
 };
