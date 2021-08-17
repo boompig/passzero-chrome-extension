@@ -287,7 +287,7 @@ class PassZero extends React.Component<IProps, IState> {
 		});
 	}
 
-	componentWillUpdate(nextProps: IProps, nextState: IState) {
+	UNSAFE_componentWillUpdate(nextProps: IProps, nextState: IState) {
 		if (!this.state.loggedIn && nextState.loggedIn) {
 			this._onLogin(nextState);
 		} else if (this.state.loggedIn && !nextState.loggedIn) {
@@ -544,7 +544,7 @@ class PassZero extends React.Component<IProps, IState> {
 	 * Called after the constructor
 	 * Only called once.
 	 */
-	componentWillMount() {
+	componentDidMount() {
 		// figure out if we have an active tab API
 		setActiveTabAPI().then((hasActiveTab: boolean) => {
 			Console.log("hasActiveTab? " + hasActiveTab.toString());

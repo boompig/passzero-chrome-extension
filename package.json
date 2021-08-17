@@ -7,7 +7,7 @@
     "test": "yarn run flow check && yarn jest",
     "jest": "jest",
     "lint": "eslint ./src/*",
-    "build": "webpack -p"
+    "build": "webpack"
   },
   "author": "Daniel Kats",
   "license": "MIT",
@@ -39,7 +39,14 @@
     "eslint": "^4.16.0",
     "eslint-plugin-react": "^7.5.1",
     "flow-bin": "^0.63.1",
+    "husky": "^7.0.1",
     "jest": "^22.4.2",
     "webpack-cli": "^4.8.0"
+  },
+  "husky": {
+	  "hooks": {
+		  "pre-commit": "yarn lint && yarn build",
+		  "pre-push": "yarn lint && yarn build"
+	  }
   }
 }
